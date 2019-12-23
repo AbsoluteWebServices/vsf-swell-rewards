@@ -5,7 +5,7 @@ import { KEY } from '../index'
 import * as types from '../store/mutation-types'
 
 const appendScript = (context, config) => { 
-  let jsUrl = `https://cdn.swellrewards.com/loader/${config.swell.guid}.js`
+  let jsUrl = `https://cdn.swellrewards.com/loader/${config.swellRewards.guid}.js`
   let docHead = context.document.getElementsByTagName('head')[0]
   let docScript = context.document.createElement('script')
 
@@ -36,7 +36,7 @@ const removeSwellTabs = (context) => {
 }
 
 export function afterRegistration({ Vue, config, store, isServer }) {
-  if (!isServer && config.swell && config.swell.guid) {
+  if (!isServer && config.swellRewards && config.swellRewards.guid) {
     const w: any = window
     let initialized = false
 

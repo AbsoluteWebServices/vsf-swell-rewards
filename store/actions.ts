@@ -19,7 +19,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       throw new Error('Identified customer required.')
     }
 
-    let url = processURLAddress(config.swell.endpoint) + '/actions'
+    let url = processURLAddress(config.swellRewards.endpoint) + '/actions'
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
@@ -53,7 +53,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
     })
   },
   updateCustomer ({ state, commit }, {id, firstname, lastname, email, pos_account_id = null, tags = []}): Promise<Response> {
-    let url = processURLAddress(config.swell.endpoint) + '/customers'
+    let url = processURLAddress(config.swellRewards.endpoint) + '/customers'
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
@@ -97,7 +97,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       throw new Error('Identified customer required.')
     }
 
-    let url = processURLAddress(config.swell.endpoint) + '/customer_birthdays'
+    let url = processURLAddress(config.swellRewards.endpoint) + '/customer_birthdays'
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
@@ -134,7 +134,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
     })
   },
   getCustomers ({}, {last_seen_at = null, page = 0, per_page = 20}): Promise<Customer[]> {
-    let url = processURLAddress(config.swell.endpoint) + `/customers/all?page=${page}&per_page=${per_page}${last_seen_at ? `&last_seen_at=${last_seen_at}` : ''}`
+    let url = processURLAddress(config.swellRewards.endpoint) + `/customers/all?page=${page}&per_page=${per_page}${last_seen_at ? `&last_seen_at=${last_seen_at}` : ''}`
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
@@ -170,7 +170,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       throw new Error('Email or ID is required.')
     }
 
-    let url = processURLAddress(config.swell.endpoint) + `/customers?customer_id=${id}&customer_email=${email}${with_referral_code ? '&with_referral_code=true' : ''}${with_history ? '&with_history=true' : ''}`
+    let url = processURLAddress(config.swellRewards.endpoint) + `/customers?customer_id=${id}&customer_email=${email}${with_referral_code ? '&with_referral_code=true' : ''}${with_history ? '&with_history=true' : ''}`
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
@@ -207,7 +207,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       throw new Error('Identified customer required.')
     }
 
-    let url = processURLAddress(config.swell.endpoint) + '/redemptions'
+    let url = processURLAddress(config.swellRewards.endpoint) + '/redemptions'
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
@@ -245,7 +245,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
     })
   },
   fetchActiveRedemptionOptions ({ commit }): Promise<RedemptionOption[]> {
-    let url = processURLAddress(config.swell.endpoint) + '/redemption_options'
+    let url = processURLAddress(config.swellRewards.endpoint) + '/redemption_options'
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
@@ -282,7 +282,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       throw new Error('Redemption ID or Code is required.')
     }
 
-    let url = processURLAddress(config.swell.endpoint) + '/redemption_codes'
+    let url = processURLAddress(config.swellRewards.endpoint) + '/redemption_codes'
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
@@ -314,7 +314,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
     })
   },
   getActiveCampaigns ({ state, commit }, with_status = false): Promise<Campaign[]> {
-    let url = processURLAddress(config.swell.endpoint) + `/campaigns${with_status ? '?with_status=true' : ''}`
+    let url = processURLAddress(config.swellRewards.endpoint) + `/campaigns${with_status ? '?with_status=true' : ''}`
 
     if (with_status) {
       if (!state.customerId && (!state.customer || !state.customer.email)) {
@@ -363,7 +363,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       throw new Error('Order Cart is required.')
     }
     
-    let url = processURLAddress(config.swell.endpoint) + '/orders'
+    let url = processURLAddress(config.swellRewards.endpoint) + '/orders'
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
@@ -415,7 +415,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       throw new Error('Order Cart is required.')
     }
     
-    let url = processURLAddress(config.swell.endpoint) + '/refunds'
+    let url = processURLAddress(config.swellRewards.endpoint) + '/refunds'
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
@@ -449,7 +449,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
     })
   },
   fetchVipTiers ({ commit }): Promise<VipTier[]> {
-    let url = processURLAddress(config.swell.endpoint) + '/vip_tiers'
+    let url = processURLAddress(config.swellRewards.endpoint) + '/vip_tiers'
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
