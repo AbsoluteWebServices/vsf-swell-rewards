@@ -1,0 +1,32 @@
+{
+  "name": "@vue-storefront/vsf-swell-rewards",
+  "version": "0.1.0",
+  "description": "The Swell rewards integration module.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbsoluteWebServices/vsf-swell-rewards.git"
+  },
+  "keywords": [
+    "swell",
+    "vue-storefront-swell-rewards",
+    "vsf-swell-rewards",
+    "vue-storefront",
+    "divanteltd/vue-storefront"
+  ],
+  "author": "Dmitry Kozachek <dmitryk@absoluteweb.com> and contributors",
+  "maintainers": [],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AbsoluteWebServices/vsf-swell-rewards/issues"
+  },
+  "homepage": "https://github.com/AbsoluteWebServices/vsf-swell-rewards#readme",
+  "dependencies": {
+  }
+}

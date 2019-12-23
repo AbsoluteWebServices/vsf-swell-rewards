@@ -1,0 +1,25 @@
+import { MutationTree } from 'vuex'
+import * as types from './mutation-types'
+import SwellRewardsState from '../types/SwellRewardsState'
+import Customer from '../types/Customer'
+import RedemptionOption from '../types/RedemptionOption'
+import Campaign from '../types/Campaign'
+import VipTier from '../types/VipTier'
+
+export const mutations: MutationTree<SwellRewardsState> = {
+  [types.SET_CUSTOMER_ID] (state, customerId: string | number) {
+    state.customerId = customerId.toString()
+  },
+  [types.SET_CUSTOMER] (state, customer: Customer) {
+    state.customer = customer
+  },
+  [types.SET_REDEMPTION_OPTIONS] (state, redemptionOptions: RedemptionOption[]) {
+    state.redemptionOptions = redemptionOptions
+  },
+  [types.SET_CAMPAIGNS] (state, campaigns: Campaign[]) {
+    state.campaigns = campaigns
+  },
+  [types.SET_VIP_TIERS] (state, vipTiers: VipTier[]) {
+    state.vipTiers = vipTiers
+  }
+}
