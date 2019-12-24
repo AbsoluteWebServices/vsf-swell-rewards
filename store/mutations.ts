@@ -21,5 +21,10 @@ export const mutations: MutationTree<SwellRewardsState> = {
   },
   [types.SET_VIP_TIERS] (state, vipTiers: VipTier[]) {
     state.vipTiers = vipTiers
+  },
+  [types.CLEAR] (state) {
+    state.customerId = null
+    state.customer = null
+    state.redemptionOptions = []
   }
 }
