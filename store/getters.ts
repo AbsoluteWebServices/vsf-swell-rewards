@@ -5,5 +5,27 @@ import SwellRewardsState from '../types/SwellRewardsState'
 export const getters: GetterTree<SwellRewardsState, RootState> = {
   getCustomerPoints: state => state.customer ? state.customer.points_balance : 0,
   getCustomerReferral: state => state.customer && state.customer.referral_code ? state.customer.referral_code : null,
-  getCustomerHistory: state => state.customer && state.customer.history_items ? state.customer.history_items : []
+  getCustomerHistory: state => state.customer && state.customer.history_items ? state.customer.history_items : [],
+  getRedemptionRateCents: state => {
+    if (state.redemptionOptions && state.redemptionOptions.length) {
+      for (let i = 0; i < state.redemptionOptions.length; i++) {
+        const option = state.redemptionOptions[i]
+        if (option.discount_type && option.discount_type === 'fixed_amount') {
+          return option.discount_amount_cents / option.amount
+        }
+      }
+    }
+    return 0
+  },
+  getRedemptionRatePercents: state => {
+    if (state.redemptionOptions && state.redemptionOptions.length) {
+      for (let i = 0; i < state.redemptionOptions.length; i++) {
+        const option = state.redemptionOptions[i]
+        if (option.discount_type && option.discount_type === 'percentage') {
+          return option.discount_percentage / option.amount
+        }
+      }
+    }
+    return 0
+  }
 }
