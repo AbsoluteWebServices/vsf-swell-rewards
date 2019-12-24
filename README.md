@@ -26,7 +26,6 @@ Add following settings to your config file.
 
 ```json
   "swellRewards": {
-    "guid": "__YOUR_GUID__",
     "endpoint": "http://localhost:8080/api/ext/swell-rewards"
   },
 ```
