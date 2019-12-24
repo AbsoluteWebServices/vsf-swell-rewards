@@ -1,5 +1,6 @@
 <template>
   <section class="swell-campaign-list-container">
+    <slot name="title"></slot>
     <ul class="swell-campaign-list">
       <li v-for="campaign in campaigns" :key="campaign.id">
         <slot :campaign="campaign">
