@@ -5,7 +5,7 @@
         <thead>
           <tr>
             <th>{{ $t('Benefits') }}</th>
-            <th v-for="vipTier in vipTiersFullList" :key="vipTier.id" :class="{'customer-tier': vipTier.id === customerVipTierId}">
+            <th v-for="vipTier in vipTiersFullList" :key="vipTier.id" :class="{'customer-tier': withStatus && vipTier.id === customerVipTierId}">
               <h5>{{ vipTier.name }}</h5>
               <p>{{ vipTier.description }}</p>
             </th>
@@ -79,7 +79,7 @@ export default {
     return this.fetchVipTiers()
   },
   mounted () {
-    if (!this.item) {
+    if (!this.vipTiers) {
       this.fetchVipTiers()
     }
   },
