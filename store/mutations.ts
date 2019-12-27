@@ -13,6 +13,9 @@ export const mutations: MutationTree<SwellRewardsState> = {
   [types.SET_CUSTOMER] (state, customer: Customer) {
     state.customer = customer
   },
+  [types.UPDATE_CUSTOMER] (state, customer: Customer) {
+    state.customer = Object.assign({}, state.customer, customer)
+  },
   [types.SET_REDEMPTION_OPTIONS] (state, redemptionOptions: RedemptionOption[]) {
     state.redemptionOptions = redemptionOptions
   },

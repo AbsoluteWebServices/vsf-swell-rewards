@@ -6,6 +6,7 @@ export const getters: GetterTree<SwellRewardsState, RootState> = {
   getCustomerPoints: state => state.customer ? state.customer.points_balance : 0,
   getCustomerReferral: state => state.customer && state.customer.referral_code ? state.customer.referral_code : null,
   getCustomerHistory: state => state.customer && state.customer.history_items ? state.customer.history_items : [],
+  getCustomerReferrals: state => state.customer && state.customer.referral_receipts ? state.customer.referral_receipts : [],
   getRedemptionRateCents: state => {
     if (state.redemptionOptions && state.redemptionOptions.length) {
       for (let i = 0; i < state.redemptionOptions.length; i++) {

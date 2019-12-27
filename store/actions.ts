@@ -52,7 +52,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       })
     })
   },
-  updateCustomer ({ state, commit }, {id, firstname, lastname, email, pos_account_id = null, tags = []}): Promise<Response> {
+  updateCustomer ({ state, commit }, {id = null, firstname, lastname, email, pos_account_id = null, tags = []}): Promise<Response> {
     let url = processURLAddress(config.swellRewards.endpoint) + '/customers'
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
@@ -67,7 +67,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
         },
         mode: 'cors',
         body: JSON.stringify({ 
-          id: id.toString(),
+          id: id ? id.toString() : null,
           first_name: firstname,
           last_name: lastname,
           email,
@@ -165,12 +165,12 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       })
     })
   },
-  getCustomer ({ commit }, {email = null, id = null, with_referral_code = false, with_history = false}): Promise<Customer> {
+  getCustomerV2 ({ commit }, {email = null, id = null, with_referral_code = false, with_history = false}): Promise<Customer> {
     if (!email && !id) {
       throw new Error('Email or ID is required.')
     }
 
-    let url = processURLAddress(config.swellRewards.endpoint) + `/customers?customer_id=${id}&customer_email=${email}${with_referral_code ? '&with_referral_code=true' : ''}${with_history ? '&with_history=true' : ''}`
+    let url = processURLAddress(config.swellRewards.endpoint) + `/customers?${id ? `customer_id=${id}` + (email ? '&' : '') : ''}${email ? `customer_email=${email}` : ''}${with_referral_code ? '&with_referral_code=true' : ''}${with_history ? '&with_history=true' : ''}`
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
@@ -188,12 +188,88 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
             const customer: Customer = json.result
 
             if (customer) {
-              commit(types.SET_CUSTOMER, customer)
+              commit(types.UPDATE_CUSTOMER, {...customer, referrer: customer.referral_code})
               resolve(customer)
             } else {
               reject(json)
             }
           })
+        } else {
+          reject(resp)
+        }
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  },
+  getCustomerV1 ({ commit }, email): Promise<Customer> {
+    if (!email) {
+      throw new Error('Email is required.')
+    }
+
+    let url = processURLAddress(config.swellRewards.endpoint) + `/customer_details?customer_email=${email}`
+    if (config.storeViews.multistore) {
+      url = adjustMultistoreApiUrl(url)
+    }
+
+    return new Promise<Customer>((resolve, reject) => {
+      fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Accept': 'application/json'
+        }
+      }).then(resp => {
+        if (resp.ok) {
+          resp.json().then(json => {
+            const customer: Customer = json.result
+
+            if (customer) {
+              commit(types.UPDATE_CUSTOMER, customer)
+              resolve(customer)
+            } else {
+              reject(json)
+            }
+          })
+        } else {
+          reject(resp)
+        }
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  },
+  refreshCustomer ({ state, dispatch }, { with_referral_code = false, with_history = false }): Promise<Customer> {
+    if (!state.customerId && !state.customer.email) {
+      throw new Error('Email or ID is required.')
+    }
+    return dispatch('getCustomer', { email: state.customer.email, id: state.customerId, with_referral_code, with_history})
+  },
+  sendReferralEmails ({ state }, emails): Promise<Response> {
+    if (!state.customer || !state.customer.email) {
+      throw new Error('Identified customer required.')
+    }
+
+    let url = processURLAddress(config.swellRewards.endpoint) + `/referral_email_shares`
+    if (config.storeViews.multistore) {
+      url = adjustMultistoreApiUrl(url)
+    }
+
+    return new Promise<Response>((resolve, reject) => {
+      fetch(url, {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          emails,
+          customer_email: state.customer.email
+        })
+      }).then(resp => {
+        if (resp.ok) {
+          resolve(resp)
         } else {
           reject(resp)
         }

@@ -43,9 +43,13 @@ Add the config to your api config.
 ```json
   "extensions":{
     "swellRewards": {
+      "merchantId": "__YOUR_MERCHANT_ID__",
       "guid": "__YOUR_GUID__",
       "apiKey": "__YOUR_API_KEY__",
-      "apiUrl": "https://app.swellrewards.com/api/v2"
+      "apiUrl": {
+        "v1": "https://app.swellrewards.com/api/v1",
+        "v2": "https://app.swellrewards.com/api/v2"
+      }
     },
     ...
   },

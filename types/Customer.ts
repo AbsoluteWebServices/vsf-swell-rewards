@@ -2,6 +2,7 @@ import ReferralCode from './ReferralCode'
 import ActionHistoryItem from './ActionHistoryItem'
 import VipTierStats from './VipTierStats'
 import VipTierRequirements from './VipTierRequirements'
+import Referral from './Referral'
 
 export default interface Customer {
   total_spend_cents: number
@@ -19,7 +20,9 @@ export default interface Customer {
   third_party_id: string
   pos_account_id?: string
   has_store_account: boolean
-  referral_code?: ReferralCode
+  referrer?: ReferralCode,
+  referral_code?: string,
+  referral_receipts?: Referral[]
   history_items?: ActionHistoryItem[]
   birthday_month?: number
   birth_day?: number

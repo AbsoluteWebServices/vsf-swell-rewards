@@ -5,6 +5,77 @@ module.exports = ({ config, db }) => {
   let swellApi = Router()
 
   /**
+   * V1
+   */
+  /**
+   * Identify Referrer
+   *
+   * This method takes an email address as a string to identify the email to attribute referred emails to.
+   * This is useful if you are building a custom referral program experience in which logged out customers can still participate.
+   */
+  swellApi.get('/customer_details', (req, res) => {
+    if (!req.query.customer_email) {
+      apiStatus(res, 'Customer Email required.', 400)
+      return
+    }
+
+    let request = require('request')
+    request({
+      url: config.extensions.swellRewards.apiUrl.v1 + '/customer_details',
+      method: 'GET',
+      qs: {
+        customer_email: req.query.customer_email,
+        merchant_id: config.extensions.swellRewards.merchantId
+      }
+    }, (error, response, body) => {
+      if (error) {
+        apiStatus(res, error, 500)
+      } else {
+        apiStatus(res, JSON.parse(body), response.statusCode)
+      }
+    })
+  })
+
+  /**
+   * Send Referral Emails
+   *
+   * This method takes an array of email addresses to send the referral email share email to.
+   * This is useful if you are building a custom referral program experience and want your customer to be able to share his referral link with his or her friends via email.
+   */
+  swellApi.post('/referral_email_shares', (req, res) => {
+    let data = req.body
+
+    if (!data.customer_email) {
+      apiStatus(res, 'Customer Email is required.', 400)
+      return
+    }
+
+    console.log(data)
+
+    let request = require('request')
+    request({
+      url: config.extensions.swellRewards.apiUrl.v1 + '/referral_email_shares',
+      method: 'POST',
+      json: true,
+      body: {
+        emails: data.emails,
+        customer_email: data.customer_email,
+        merchant_id: config.extensions.swellRewards.merchantId
+      }
+    }, (error, response, body) => {
+      console.log(error)
+      if (error) {
+        apiStatus(res, error, 500)
+      } else {
+        apiStatus(res, body, response.statusCode)
+      }
+    })
+  })
+
+  /**
+   * V2
+   */
+  /**
    * Record a Customer Action
    *
    * This endpoint records an action performed by a customer.
@@ -20,7 +91,7 @@ module.exports = ({ config, db }) => {
 
     let request = require('request')
     request({
-      url: config.extensions.swellRewards.apiUrl + '/actions',
+      url: config.extensions.swellRewards.apiUrl.v2 + '/actions',
       method: 'POST',
       headers: {
         'x-guid': config.extensions.swellRewards.guid,
@@ -30,7 +101,7 @@ module.exports = ({ config, db }) => {
       body: data
     }, (error, response, body) => {
       if (error) {
-        apiStatus(res, error, response.statusCode)
+        apiStatus(res, error, 500)
       } else {
         apiStatus(res, JSON.parse(body), response.statusCode)
       }
@@ -64,7 +135,7 @@ module.exports = ({ config, db }) => {
 
     let request = require('request')
     request({
-      url: config.extensions.swellRewards.apiUrl + '/customers',
+      url: config.extensions.swellRewards.apiUrl.v2 + '/customers',
       method: 'POST',
       headers: {
         'x-guid': config.extensions.swellRewards.guid,
@@ -74,7 +145,7 @@ module.exports = ({ config, db }) => {
       body: data
     }, (error, response, body) => {
       if (error) {
-        apiStatus(res, error, response.statusCode)
+        apiStatus(res, error, 500)
       } else {
         apiStatus(res, body, response.statusCode)
       }
@@ -99,7 +170,7 @@ module.exports = ({ config, db }) => {
 
     let request = require('request')
     request({
-      url: config.extensions.swellRewards.apiUrl + '/customer_birthdays',
+      url: config.extensions.swellRewards.apiUrl.v2 + '/customer_birthdays',
       method: 'POST',
       headers: {
         'x-guid': config.extensions.swellRewards.guid,
@@ -109,7 +180,7 @@ module.exports = ({ config, db }) => {
       body: data
     }, (error, response, body) => {
       if (error) {
-        apiStatus(res, error, response.statusCode)
+        apiStatus(res, error, 500)
       } else {
         apiStatus(res, body, response.statusCode)
       }
@@ -125,7 +196,7 @@ module.exports = ({ config, db }) => {
   swellApi.get('/customers/all', (req, res) => {
     let request = require('request')
     request({
-      url: config.extensions.swellRewards.apiUrl + '/customers/all',
+      url: config.extensions.swellRewards.apiUrl.v2 + '/customers/all',
       method: 'GET',
       headers: {
         'x-guid': config.extensions.swellRewards.guid,
@@ -134,7 +205,7 @@ module.exports = ({ config, db }) => {
       qs: req.query
     }, (error, response, body) => {
       if (error) {
-        apiStatus(res, error, response.statusCode)
+        apiStatus(res, error, 500)
       } else {
         apiStatus(res, JSON.parse(body), response.statusCode)
       }
@@ -155,7 +226,7 @@ module.exports = ({ config, db }) => {
 
     let request = require('request')
     request({
-      url: config.extensions.swellRewards.apiUrl + '/customers',
+      url: config.extensions.swellRewards.apiUrl.v2 + '/customers',
       method: 'GET',
       headers: {
         'x-guid': config.extensions.swellRewards.guid,
@@ -164,7 +235,7 @@ module.exports = ({ config, db }) => {
       qs: req.query
     }, (error, response, body) => {
       if (error) {
-        apiStatus(res, error, response.statusCode)
+        apiStatus(res, error, 500)
       } else {
         apiStatus(res, JSON.parse(body), response.statusCode)
       }
@@ -194,7 +265,7 @@ module.exports = ({ config, db }) => {
 
     let request = require('request')
     request({
-      url: config.extensions.swellRewards.apiUrl + '/redemptions',
+      url: config.extensions.swellRewards.apiUrl.v2 + '/redemptions',
       method: 'POST',
       headers: {
         'x-guid': config.extensions.swellRewards.guid,
@@ -204,7 +275,7 @@ module.exports = ({ config, db }) => {
       body: data
     }, (error, response, body) => {
       if (error) {
-        apiStatus(res, error, response.statusCode)
+        apiStatus(res, error, 500)
       } else {
         apiStatus(res, JSON.parse(body), response.statusCode)
       }
@@ -219,7 +290,7 @@ module.exports = ({ config, db }) => {
   swellApi.get('/redemption_options', (req, res) => {
     let request = require('request')
     request({
-      url: config.extensions.swellRewards.apiUrl + '/redemption_options',
+      url: config.extensions.swellRewards.apiUrl.v2 + '/redemption_options',
       method: 'GET',
       headers: {
         'x-guid': config.extensions.swellRewards.guid,
@@ -227,7 +298,7 @@ module.exports = ({ config, db }) => {
       }
     }, (error, response, body) => {
       if (error) {
-        apiStatus(res, error, response.statusCode)
+        apiStatus(res, error, 500)
       } else {
         apiStatus(res, JSON.parse(body), response.statusCode)
       }
@@ -250,7 +321,7 @@ module.exports = ({ config, db }) => {
 
     let request = require('request')
     request({
-      url: config.extensions.swellRewards.apiUrl + '/redemption_codes',
+      url: config.extensions.swellRewards.apiUrl.v2 + '/redemption_codes',
       method: 'GET',
       headers: {
         'x-guid': config.extensions.swellRewards.guid,
@@ -259,7 +330,7 @@ module.exports = ({ config, db }) => {
       qs: req.query
     }, (error, response, body) => {
       if (error) {
-        apiStatus(res, error, response.statusCode)
+        apiStatus(res, error, 500)
       } else {
         apiStatus(res, JSON.parse(body), response.statusCode)
       }
@@ -282,7 +353,7 @@ module.exports = ({ config, db }) => {
 
     let request = require('request')
     request({
-      url: config.extensions.swellRewards.apiUrl + '/campaigns',
+      url: config.extensions.swellRewards.apiUrl.v2 + '/campaigns',
       method: 'GET',
       headers: {
         'x-guid': config.extensions.swellRewards.guid,
@@ -291,7 +362,7 @@ module.exports = ({ config, db }) => {
       qs: req.query
     }, (error, response, body) => {
       if (error) {
-        apiStatus(res, error, response.statusCode)
+        apiStatus(res, error, 500)
       } else {
         apiStatus(res, JSON.parse(body), response.statusCode)
       }
@@ -314,7 +385,7 @@ module.exports = ({ config, db }) => {
 
     let request = require('request')
     request({
-      url: config.extensions.swellRewards.apiUrl + '/orders',
+      url: config.extensions.swellRewards.apiUrl.v2 + '/orders',
       method: 'POST',
       headers: {
         'x-guid': config.extensions.swellRewards.guid,
@@ -327,7 +398,7 @@ module.exports = ({ config, db }) => {
       }
     }, (error, response, body) => {
       if (error) {
-        apiStatus(res, error, response.statusCode)
+        apiStatus(res, error, 500)
       } else {
         apiStatus(res, body, response.statusCode)
       }
@@ -350,7 +421,7 @@ module.exports = ({ config, db }) => {
 
     let request = require('request')
     request({
-      url: config.extensions.swellRewards.apiUrl + '/refunds',
+      url: config.extensions.swellRewards.apiUrl.v2 + '/refunds',
       method: 'POST',
       headers: {
         'x-guid': config.extensions.swellRewards.guid,
@@ -360,7 +431,7 @@ module.exports = ({ config, db }) => {
       body: data
     }, (error, response, body) => {
       if (error) {
-        apiStatus(res, error, response.statusCode)
+        apiStatus(res, error, 500)
       } else {
         apiStatus(res, body, response.statusCode)
       }
@@ -373,7 +444,7 @@ module.exports = ({ config, db }) => {
   swellApi.get('/vip_tiers', (req, res) => {
     let request = require('request')
     request({
-      url: config.extensions.swellRewards.apiUrl + '/vip_tiers',
+      url: config.extensions.swellRewards.apiUrl.v2 + '/vip_tiers',
       method: 'GET',
       headers: {
         'x-guid': config.extensions.swellRewards.guid,
@@ -381,7 +452,7 @@ module.exports = ({ config, db }) => {
       }
     }, (error, response, body) => {
       if (error) {
-        apiStatus(res, error, response.statusCode)
+        apiStatus(res, error, 500)
       } else {
         apiStatus(res, JSON.parse(body), response.statusCode)
       }
