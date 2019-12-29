@@ -102,7 +102,7 @@ module.exports = ({ config, db }) => {
         'x-api-key': config.extensions.swellRewards.apiKey
       },
       json: true,
-      body: data
+      body: Object.assign({}, data, {ip_address: req.ip})
     }, (error, response, body) => {
       if (error) {
         apiStatus(res, error, 500)
@@ -426,10 +426,7 @@ module.exports = ({ config, db }) => {
         'x-api-key': config.extensions.swellRewards.apiKey
       },
       json: true,
-      body: {
-        ...data,
-        ip_address: req.ip
-      }
+      body: Object.assign({}, data, {ip_address: req.ip})
     }, (error, response, body) => {
       if (error) {
         apiStatus(res, error, 500)
