@@ -31,7 +31,11 @@ module.exports = ({ config, db }) => {
       if (error) {
         apiStatus(res, error, 500)
       } else {
-        apiStatus(res, JSON.parse(body), response.statusCode)
+        let json = body
+        if (typeof json === 'string') {
+          json = JSON.parse(json)
+        }
+        apiStatus(res, json, response.statusCode)
       }
     })
   })
@@ -103,7 +107,11 @@ module.exports = ({ config, db }) => {
       if (error) {
         apiStatus(res, error, 500)
       } else {
-        apiStatus(res, JSON.parse(body), response.statusCode)
+        let json = body
+        if (typeof json === 'string') {
+          json = JSON.parse(json)
+        }
+        apiStatus(res, json, response.statusCode)
       }
     })
   })
@@ -207,7 +215,11 @@ module.exports = ({ config, db }) => {
       if (error) {
         apiStatus(res, error, 500)
       } else {
-        apiStatus(res, JSON.parse(body), response.statusCode)
+        let json = body
+        if (typeof json === 'string') {
+          json = JSON.parse(json)
+        }
+        apiStatus(res, json, response.statusCode)
       }
     })
   })
@@ -237,7 +249,11 @@ module.exports = ({ config, db }) => {
       if (error) {
         apiStatus(res, error, 500)
       } else {
-        apiStatus(res, JSON.parse(body), response.statusCode)
+        let json = body
+        if (typeof json === 'string') {
+          json = JSON.parse(json)
+        }
+        apiStatus(res, json, response.statusCode)
       }
     })
   })
@@ -274,10 +290,16 @@ module.exports = ({ config, db }) => {
       json: true,
       body: data
     }, (error, response, body) => {
+      console.log(body.status)
+      console.log(response.statusCode)
       if (error) {
         apiStatus(res, error, 500)
       } else {
-        apiStatus(res, JSON.parse(body), response.statusCode)
+        let json = body
+        if (typeof json === 'string') {
+          json = JSON.parse(json)
+        }
+        apiStatus(res, json, response.statusCode)
       }
     })
   })
@@ -300,7 +322,11 @@ module.exports = ({ config, db }) => {
       if (error) {
         apiStatus(res, error, 500)
       } else {
-        apiStatus(res, JSON.parse(body), response.statusCode)
+        let json = body
+        if (typeof json === 'string') {
+          json = JSON.parse(json)
+        }
+        apiStatus(res, json, response.statusCode)
       }
     })
   })
@@ -332,7 +358,11 @@ module.exports = ({ config, db }) => {
       if (error) {
         apiStatus(res, error, 500)
       } else {
-        apiStatus(res, JSON.parse(body), response.statusCode)
+        let json = body
+        if (typeof json === 'string') {
+          json = JSON.parse(json)
+        }
+        apiStatus(res, json, response.statusCode)
       }
     })
   })
@@ -364,7 +394,11 @@ module.exports = ({ config, db }) => {
       if (error) {
         apiStatus(res, error, 500)
       } else {
-        apiStatus(res, JSON.parse(body), response.statusCode)
+        let json = body
+        if (typeof json === 'string') {
+          json = JSON.parse(json)
+        }
+        apiStatus(res, json, response.statusCode)
       }
     })
   })
@@ -454,7 +488,11 @@ module.exports = ({ config, db }) => {
       if (error) {
         apiStatus(res, error, 500)
       } else {
-        apiStatus(res, JSON.parse(body), response.statusCode)
+        let json = body
+        if (typeof json === 'string') {
+          json = JSON.parse(json)
+        }
+        apiStatus(res, json, response.statusCode)
       }
     })
   })
