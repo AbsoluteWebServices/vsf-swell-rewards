@@ -393,6 +393,24 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       })
     })
   },
+  checkCoupon ({ state, dispatch }, code): Promise<Boolean> {
+    return new Promise<Boolean>((resolve, reject) => {
+      dispatch('getRedemptionCodeData', { code }).then(codeData => {
+        if (codeData) {
+          if (!!state.customer && !!state.customer.email) {
+            resolve(codeData.email === state.customer.email)
+          } else {
+            resolve(false)
+          }
+        } else {
+          resolve(true)
+        }
+      }).catch(err => {
+        Logger.error(err)()
+        resolve(true)
+      })
+    })
+  },
   getActiveCampaigns ({ state, commit }, with_status = false): Promise<Campaign[]> {
     let url = processURLAddress(config.swellRewards.endpoint) + '/campaigns'
 
