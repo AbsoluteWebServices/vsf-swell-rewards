@@ -35,7 +35,7 @@ export default {
     return this.fetchCampaigns()
   },
   mounted () {
-    if (!this.campaigns) {
+    if (!this.campaigns.length) {
       this.fetchCampaigns()
     }
   },

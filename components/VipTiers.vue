@@ -79,7 +79,7 @@ export default {
     return this.fetchVipTiers()
   },
   mounted () {
-    if (!this.vipTiers) {
+    if (!this.vipTiers.length) {
       this.fetchVipTiers()
     }
   },

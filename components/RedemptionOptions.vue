@@ -38,7 +38,7 @@ export default {
     return this.fetchActiveRedemptionOptions()
   },
   mounted () {
-    if (!this.item) {
+    if (!this.redemptionOptions.length) {
       this.fetchActiveRedemptionOptions()
     }
   },
