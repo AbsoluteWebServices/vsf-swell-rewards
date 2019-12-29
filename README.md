@@ -26,6 +26,7 @@ Add following settings to your config file.
 
 ```json
   "swellRewards": {
+    "referralBase": "http://rwrd.io/",
     "endpoint": "http://localhost:8080/api/ext/swell-rewards"
   },
 ```
