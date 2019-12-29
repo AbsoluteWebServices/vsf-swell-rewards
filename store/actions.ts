@@ -12,6 +12,7 @@ import RedemptionOption from '../types/RedemptionOption'
 import RedemptionCode from '../types/RedemptionCode'
 import Campaign from '../types/Campaign'
 import VipTier from '../types/VipTier'
+import { Logger } from '@vue-storefront/core/lib/logger'
 
 export const actions: ActionTree<SwellRewardsState, RootState> = {
   recordAction ({ state }, { action_name, type = 'CustomAction', created_at = Math.round((Date.now()/1000)), reward_points = null, history_title = null }): Promise<Response> {
@@ -52,7 +53,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       })
     })
   },
-  updateCustomer ({ state, commit }, {id = null, firstname, lastname, email, pos_account_id = null, tags = []}): Promise<Response> {
+  updateCustomer ({ commit }, {id = null, firstname, lastname, email, pos_account_id = null, tags = []}): Promise<Response> {
     let url = processURLAddress(config.swellRewards.endpoint) + '/customers'
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
@@ -76,8 +77,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
          })
       }).then(resp => {
         if (resp.ok) {
-          commit(types.SET_CUSTOMER, {
-            ...state.customer,
+          commit(types.UPDATE_CUSTOMER, {
             first_name: firstname,
             last_name: lastname,
             pos_account_id,
@@ -118,8 +118,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
         })
       }).then(resp => {
         if (resp.ok) {
-          commit(types.SET_CUSTOMER, {
-            ...state.customer,
+          commit(types.UPDATE_CUSTOMER, {
             birth_day: day,
             birthday_month: month,
             birthday_year: year
@@ -147,8 +146,8 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           'Accept': 'application/json'
         }
       }).then(resp => {
-        if (resp.ok) {
-          resp.json().then(json => {
+        resp.json().then(json => {
+          if (resp.ok) {
             const customers: Customer[] = json.result
 
             if (customers && customers.length) {
@@ -156,10 +155,10 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
             } else {
               reject(json)
             }
-          })
-        } else {
-          reject(resp)
-        }
+          } else {
+            reject(json)
+          }
+        })
       }).catch(err => {
         reject(err)
       })
@@ -183,8 +182,8 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           'Accept': 'application/json'
         }
       }).then(resp => {
-        if (resp.ok) {
-          resp.json().then(json => {
+        resp.json().then(json => {
+          if (resp.ok) {
             const customer: Customer = json.result
 
             if (customer) {
@@ -193,10 +192,10 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
             } else {
               reject(json)
             }
-          })
-        } else {
-          reject(resp)
-        }
+          } else {
+            reject(json)
+          }
+        })
       }).catch(err => {
         reject(err)
       })
@@ -220,8 +219,8 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           'Accept': 'application/json'
         }
       }).then(resp => {
-        if (resp.ok) {
-          resp.json().then(json => {
+        resp.json().then(json => {
+          if (resp.ok) {
             const customer: Customer = json.result
 
             if (customer) {
@@ -230,10 +229,10 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
             } else {
               reject(json)
             }
-          })
-        } else {
-          reject(resp)
-        }
+          } else {
+            reject(json)
+          }
+        })
       }).catch(err => {
         reject(err)
       })
@@ -243,7 +242,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
     if (!state.customerId && !state.customer.email) {
       throw new Error('Email or ID is required.')
     }
-    return dispatch('getCustomer', { email: state.customer.email, id: state.customerId, with_referral_code, with_history})
+    return dispatch('getCustomerV2', { email: state.customer.email, id: state.customerId, with_referral_code, with_history})
   },
   sendReferralEmails ({ state }, emails): Promise<Response> {
     if (!state.customer || !state.customer.email) {
@@ -278,9 +277,13 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       })
     })
   },
-  createRedemption ({ state }, redemptionOptionId): Promise<Redemption> {
+  createRedemption ({ state }, {redemptionOptionId, delay_points_deduction = false}): Promise<Redemption> {
     if (!state.customerId && (!state.customer || !state.customer.email)) {
       throw new Error('Identified customer required.')
+    }
+
+    if (!redemptionOptionId) {
+      throw new Error('Redemption option ID required.')
     }
 
     let url = processURLAddress(config.swellRewards.endpoint) + '/redemptions'
@@ -299,11 +302,12 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
         body: JSON.stringify({ 
           customer_external_id: state.customerId,
           customer_email: state.customer ? state.customer.email : null,
-          redemption_option_id: redemptionOptionId
+          redemption_option_id: redemptionOptionId,
+          delay_points_deduction
         })
       }).then(resp => {
-        if (resp.ok) {
-          resp.json().then(json => {
+        resp.json().then(json => {
+          if (resp.ok) {
             const redemption: Redemption = json.result
 
             if (redemption) {
@@ -311,10 +315,10 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
             } else {
               reject(json)
             }
-          })
-        } else {
-          reject(resp)
-        }
+          } else {
+            reject(json)
+          }
+        })
       }).catch(err => {
         reject(err)
       })
@@ -334,8 +338,8 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           'Accept': 'application/json'
         }
       }).then(resp => {
-        if (resp.ok) {
-          resp.json().then(json => {
+        resp.json().then(json => {
+          if (resp.ok) {
             const options: RedemptionOption[] = json.result
 
             if (options && options.length) {
@@ -344,26 +348,26 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
             } else {
               reject(json)
             }
-          })
-        } else {
-          reject(resp)
-        }
+          } else {
+            reject(resp)
+          }
+        })
       }).catch(err => {
         reject(err)
       })
     })
   },
-  getRedemptionCodeData ({}, { third_party_id = null, code = null }): Promise<RedemptionCode> {
+  getRedemptionCodeData ({}, { third_party_id = null, code = null }): Promise<RedemptionCode | null> {
     if (!third_party_id && !code) {
       throw new Error('Redemption ID or Code is required.')
     }
 
-    let url = processURLAddress(config.swellRewards.endpoint) + '/redemption_codes'
+    let url = processURLAddress(config.swellRewards.endpoint) + `/redemption_codes?${third_party_id ? `third_party_id=${third_party_id}` + (code ? '&' : '') : ''}${code ? `code=${code}` : ''}`
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
 
-    return new Promise<RedemptionCode>((resolve, reject) => {
+    return new Promise<RedemptionCode | null>((resolve, reject) => {
       fetch(url, {
         method: 'GET',
         mode: 'cors',
@@ -371,8 +375,8 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           'Accept': 'application/json'
         }
       }).then(resp => {
-        if (resp.ok) {
-          resp.json().then(json => {
+        resp.json().then(json => {
+          if (resp.ok) {
             const code: RedemptionCode = json.result
 
             if (code) {
@@ -380,23 +384,23 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
             } else {
               reject(json)
             }
-          })
-        } else {
-          reject(resp)
-        }
+          } else {
+            reject(resp)
+          }
+        })
       }).catch(err => {
         reject(err)
       })
     })
   },
   getActiveCampaigns ({ state, commit }, with_status = false): Promise<Campaign[]> {
-    let url = processURLAddress(config.swellRewards.endpoint) + `/campaigns${with_status ? '?with_status=true' : ''}`
+    let url = processURLAddress(config.swellRewards.endpoint) + '/campaigns'
 
     if (with_status) {
       if (!state.customerId && (!state.customer || !state.customer.email)) {
         throw new Error('Identified customer required to get his current status and eligibility on each of the campaigns.')
       }
-      url = `&customer_id=${state.customerId}&customer_email=${state.customer ? state.customer.email : ''}`
+      url = `?with_status=true&customer_id=${state.customerId}&customer_email=${state.customer ? state.customer.email : ''}`
     }
 
     if (config.storeViews.multistore) {
@@ -411,8 +415,8 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           'Accept': 'application/json'
         }
       }).then(resp => {
-        if (resp.ok) {
-          resp.json().then(json => {
+        resp.json().then(json => {
+          if (resp.ok) {
             const campaigns: Campaign[] = json.result
 
             if (campaigns && campaigns.length) {
@@ -421,10 +425,10 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
             } else {
               reject(json)
             }
-          })
-        } else {
-          reject(resp)
-        }
+          } else {
+            reject(resp)
+          }
+        })
       }).catch(err => {
         reject(err)
       })
@@ -538,8 +542,8 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           'Accept': 'application/json'
         }
       }).then(resp => {
-        if (resp.ok) {
-          resp.json().then(json => {
+        resp.json().then(json => {
+          if (resp.ok) {
             const vipTiers: VipTier[] = json.result
 
             if (vipTiers && vipTiers.length) {
@@ -548,10 +552,10 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
             } else {
               reject(json)
             }
-          })
-        } else {
-          reject(resp)
-        }
+          } else {
+            reject(resp)
+          }
+        })
       }).catch(err => {
         reject(err)
       })
