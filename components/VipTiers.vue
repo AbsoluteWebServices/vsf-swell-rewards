@@ -4,8 +4,8 @@
       <slot name="thead" :vip-tiers-full-list="vipTiersFullList" :customer-vip-tier-id="customerVipTierId">
         <thead>
           <tr>
-            <th>{{ $t('Benefits') }}</th>
-            <th v-for="vipTier in vipTiersFullList" :key="vipTier.id" :class="{'customer-tier': withStatus && vipTier.id === customerVipTierId}">
+            <th :data-index="0">{{ $t('Benefits') }}</th>
+            <th :data-index="index + 1" v-show="showCol === (index + 1) || showCol === null" v-for="(vipTier, index) in vipTiersFullList" :key="vipTier.id" :class="{'customer-tier': withStatus && vipTier.id === customerVipTierId}">
               <h5>{{ vipTier.name }}</h5>
               <p>{{ vipTier.description }}</p>
             </th>
@@ -15,8 +15,8 @@
       <slot name="tbody" :rows="rows" :vip-tiers-full-list="vipTiersFullList" :customer-vip-tier-id="customerVipTierId">
         <tbody>
           <tr v-for="(row, index) in rows" :key="index">
-            <td>{{ row.name }}</td>
-            <td v-for="vipTier in vipTiersFullList" :key="vipTier.id" v-html="row.htmlValue(vipTier)" />
+            <td :data-index="0">{{ row.name }}</td>
+            <td v-show="showCol === (i + 1) || showCol === null" :data-index="i + 1" v-for="(vipTier, i) in vipTiersFullList" :key="vipTier.id" v-html="row.htmlValue(vipTier)" />
           </tr>
         </tbody>
       </slot>
@@ -61,6 +61,15 @@ export default {
           }
         ]
       }
+    },
+    showCol: {
+      type: Number,
+      required: false,
+      default: null
+    }
+  },
+  data () {
+    return {
     }
   },
   computed: {
