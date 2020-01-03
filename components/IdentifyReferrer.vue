@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent="identify" class="swell-identify-referrer">
-    <slot name="field" :email="email">
+    <slot name="field" :email="email" :set-email="val => email = val">
       <input v-model="email" type="email" :placeholder="$t('Your email')">
     </slot>
     <slot name="button">
