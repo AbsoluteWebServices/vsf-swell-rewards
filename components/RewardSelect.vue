@@ -20,6 +20,21 @@ import { mapState, mapGetters } from 'vuex'
 import i18n from '@vue-storefront/i18n'
 import { KEY } from '../index'
 
+const monthNames = [
+  i18n.t('Jan'),
+  i18n.t('Feb'),
+  i18n.t('Mar'),
+  i18n.t('Apr'),
+  i18n.t('May'),
+  i18n.t('Jun'),
+  i18n.t('Jul'),
+  i18n.t('Aug'),
+  i18n.t('Sep'),
+  i18n.t('Oct'),
+  i18n.t('Nov'),
+  i18n.t('Dec')
+];
+
 export default {
   name: 'RewardSelect',
   data () {
@@ -31,32 +46,26 @@ export default {
     ...mapState(KEY, ['redemptionOptions']),
     ...mapGetters(KEY, ['getCustomerPoints', 'getCustomerRedeemedRewards']),
     rewardOptions () {
-      const redeemedOptions = this.getCustomerRedeemedRewards
-
-      return this.redemptionOptions.map(item => {
-        let option = {
-          label: `${item.name} (${item.cost_text})`,
-          value: item.id
+      return this.redemptionOptions.map(item => ({
+        label: `${item.name} (${item.cost_text})`,
+        value: 'ro_' + item.id,
+        reward: item,
+        purchased: false
+      })).concat(this.getCustomerRedeemedRewards.map(item => {
+        const date = new Date(item.approved_at)
+        return {
+          label: `${item.redemption_option.name} (${i18n.t('Purchased')} ${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()})`,
+          value: 'rr_' + item.id,
+          reward: item,
+          purchased: true
         }
-        if (redeemedOptions.length) {
-          for (let i = 0; i < redeemedOptions.length; i++) {
-            const redeemedOption = redeemedOptions[i]
-
-            if (item.amount === redeemedOption.redemption_option.amount && item.name === redeemedOption.redemption_option.name) {
-              option.redeemed = redeemedOption
-              option.label = `${item.name} (${i18n.t('Purchased')})`
-              break
-            }
-          }
-        }
-        return option
-      })
+      }))
     },
     selectedReward () {
       if (this.selectedRewardId) {
-        for (let i = 0; i < this.redemptionOptions.length; i++) {
-          const element = this.redemptionOptions[i]
-          if (this.selectedRewardId === element.id) {
+        for (let i = 0; i < this.rewardOptions.length; i++) {
+          const element = this.rewardOptions[i]
+          if (this.selectedRewardId === element.value) {
             return element
           }
         }
@@ -77,20 +86,7 @@ export default {
       return this.$store.dispatch(KEY + '/fetchActiveRedemptionOptions')
     },
     selectReward (val) {
-      this.selectedRewardId = parseInt(val)
-    },
-    getPurchasedReward (reward) {
-      const redeemedOptions = this.getCustomerRedeemedRewards
-
-      for (let i = 0; i < redeemedOptions.length; i++) {
-        const redeemedOption = redeemedOptions[i]
-
-        if (reward.amount === redeemedOption.redemption_option.amount && reward.name === redeemedOption.redemption_option.name) {
-          return redeemedOption
-        }
-      }
-
-      return null
+      this.selectedRewardId = val
     },
     async makeRedemption () {
       const selectedReward = this.selectedReward
@@ -98,13 +94,13 @@ export default {
         return
       }
 
-      const purchasedReward = this.getPurchasedReward(selectedReward)
-      if (purchasedReward && this.$store.dispatch(KEY + '/setActiveRedemption', purchasedReward)) {
-        this.$emit('reward-purchased', purchasedReward.reward_text)
+      const reward = selectedReward.reward
+      if (selectedReward.purchased && this.$store.dispatch(KEY + '/setActiveRedemption', reward)) {
+        this.$emit('reward-purchased', reward.redemption_option.reward_text)
         return
       }
 
-      if (this.getCustomerPoints < selectedReward.amount) {
+      if (this.getCustomerPoints < reward.amount) {
         this.$store.dispatch('notification/spawnNotification', {
           type: 'error',
           message: i18n.t("You don't have enough points to purchase this reward."),
@@ -114,7 +110,7 @@ export default {
       }
 
       try {
-        const redemption = await this.$store.dispatch(KEY + '/createRedemption', {redemptionOptionId: selectedReward.id})
+        const redemption = await this.$store.dispatch(KEY + '/createRedemption', {redemptionOptionId: reward.id})
 
         if (redemption.approved) {
           this.$emit('reward-purchased', redemption.reward_text)
