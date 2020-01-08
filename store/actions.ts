@@ -238,7 +238,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       })
     })
   },
-  refreshCustomer ({ state, dispatch }, { with_referral_code = false, with_history = false }): Promise<Customer> {
+  refreshCustomer ({ state, dispatch }, { with_referral_code = false, with_history = false } = {}): Promise<Customer> {
     if (!state.customerId && !state.customer.email) {
       throw new Error('Email or ID is required.')
     }
