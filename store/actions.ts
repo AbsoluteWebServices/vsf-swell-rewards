@@ -311,6 +311,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
             const redemption: Redemption = json.result
 
             if (redemption) {
+              this.commit(types.SET_ACTIVE_REDEMPTION, redemption)
               resolve(redemption)
             } else {
               reject(json)
@@ -323,6 +324,18 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
         reject(err)
       })
     })
+  },
+  setActiveRedemption ({ commit }, redemption: Redemption): Boolean {
+    if (redemption.approved) {
+      commit(types.SET_ACTIVE_REDEMPTION, redemption)
+      return true
+    }
+    return false
+  },
+  removeActiveRedemption ({ state, commit }) {
+    if (state.activeRedemption) {
+      commit(types.SET_ACTIVE_REDEMPTION, null)
+    }
   },
   fetchActiveRedemptionOptions ({ commit }): Promise<RedemptionOption[]> {
     let url = processURLAddress(config.swellRewards.endpoint) + '/redemption_options'

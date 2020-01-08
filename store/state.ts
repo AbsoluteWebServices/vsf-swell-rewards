@@ -4,6 +4,7 @@ export const state: SwellRewardsState = {
   customerId: null,
   customer: null,
   redemptionOptions: [],
+  activeRedemption: null,
   campaigns: [],
   vipTiers: []
 }

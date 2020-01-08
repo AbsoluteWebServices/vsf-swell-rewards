@@ -3,6 +3,7 @@ import ActionHistoryItem from './ActionHistoryItem'
 import VipTierStats from './VipTierStats'
 import VipTierRequirements from './VipTierRequirements'
 import Referral from './Referral'
+import Redemption from './Redemption'
 
 export default interface Customer {
   total_spend_cents: number
@@ -33,4 +34,5 @@ export default interface Customer {
   vip_tier_actions_completed?: VipTierStats
   vip_tier_maintenance_requirements?: VipTierRequirements
   vip_tier_upgrade_requirements?: VipTierRequirements
+  point_redemptions?: Redemption[]
 }

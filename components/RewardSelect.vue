@@ -29,12 +29,28 @@ export default {
   },
   computed: {
     ...mapState(KEY, ['redemptionOptions']),
-    ...mapGetters(KEY, ['getCustomerPoints']),
+    ...mapGetters(KEY, ['getCustomerPoints', 'getCustomerRedeemedRewards']),
     rewardOptions () {
-      return this.redemptionOptions.map(item => ({
-        label: `${item.name} (${item.cost_text})`,
-        value: item.id
-      }))
+      const redeemedOptions = this.getCustomerRedeemedRewards
+
+      return this.redemptionOptions.map(item => {
+        let option = {
+          label: `${item.name} (${item.cost_text})`,
+          value: item.id
+        }
+        if (redeemedOptions.length) {
+          for (let i = 0; i < redeemedOptions.length; i++) {
+            const redeemedOption = redeemedOptions[i]
+
+            if (item.amount === redeemedOption.redemption_option.amount && item.name === redeemedOption.redemption_option.name) {
+              option.redeemed = redeemedOption
+              option.label = `${item.name} (${i18n.t('Purchased')})`
+              break
+            }
+          }
+        }
+        return option
+      })
     },
     selectedReward () {
       if (this.selectedRewardId) {
@@ -63,9 +79,28 @@ export default {
     selectReward (val) {
       this.selectedRewardId = parseInt(val)
     },
+    getPurchasedReward (reward) {
+      const redeemedOptions = this.getCustomerRedeemedRewards
+
+      for (let i = 0; i < redeemedOptions.length; i++) {
+        const redeemedOption = redeemedOptions[i]
+
+        if (reward.amount === redeemedOption.redemption_option.amount && reward.name === redeemedOption.redemption_option.name) {
+          return redeemedOption
+        }
+      }
+
+      return null
+    },
     async makeRedemption () {
       const selectedReward = this.selectedReward
       if (!selectedReward) {
+        return
+      }
+
+      const purchasedReward = this.getPurchasedReward(selectedReward)
+      if (purchasedReward && this.$store.dispatch(KEY + '/setActiveRedemption', purchasedReward)) {
+        this.$emit('reward-purchased', purchasedReward.reward_text)
         return
       }
 
@@ -98,6 +133,17 @@ export default {
             message: resp.result.error,
             action1: { label: i18n.t('OK') }
           })
+        } else {
+          for (const key in resp.result) {
+            if (resp.result.hasOwnProperty(key) && resp.result[key].length) {
+              this.$store.dispatch('notification/spawnNotification', {
+                type: 'error',
+                message: resp.result[key][0],
+                action1: { label: i18n.t('OK') }
+              })
+              break
+            }
+          }
         }
       }
     }

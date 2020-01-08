@@ -3,6 +3,7 @@ import * as types from './mutation-types'
 import SwellRewardsState from '../types/SwellRewardsState'
 import Customer from '../types/Customer'
 import RedemptionOption from '../types/RedemptionOption'
+import Redemption from '../types/Redemption'
 import Campaign from '../types/Campaign'
 import VipTier from '../types/VipTier'
 
@@ -18,6 +19,9 @@ export const mutations: MutationTree<SwellRewardsState> = {
   },
   [types.SET_REDEMPTION_OPTIONS] (state, redemptionOptions: RedemptionOption[]) {
     state.redemptionOptions = redemptionOptions
+  },
+  [types.SET_ACTIVE_REDEMPTION] (state, redemption: Redemption) {
+    state.activeRedemption = redemption
   },
   [types.SET_CAMPAIGNS] (state, campaigns: Campaign[]) {
     state.campaigns = campaigns
