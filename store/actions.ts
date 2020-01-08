@@ -15,7 +15,7 @@ import VipTier from '../types/VipTier'
 import { Logger } from '@vue-storefront/core/lib/logger'
 
 export const actions: ActionTree<SwellRewardsState, RootState> = {
-  recordAction ({ state }, { action_name, type = 'CustomAction', created_at = Math.round((Date.now()/1000)), reward_points = null, history_title = null }): Promise<Response> {
+  recordAction ({ state }, { action_name, type = 'CustomAction', created_at = (new Date()).toISOString(), reward_points = undefined, history_title = undefined }): Promise<Response> {
     if (!state.customer || !state.customer.email) {
       throw new Error('Identified customer required.')
     }
@@ -483,7 +483,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           currency_code: currencyCode,
           order_id: order.id.toString(),
           status: 'paid',
-          created_at: Math.round((new Date(order.created_at)).getTime()/1000),
+          created_at: order.created_at,
           coupon_code: [].join(','),
           user_agent: navigator.userAgent,
           discount_amount_cents: order.cart.platformTotals.discount_amount * 100,
