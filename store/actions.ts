@@ -377,7 +377,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       }).then(resp => {
         resp.json().then(json => {
           if (resp.ok) {
-            const code: RedemptionCode = json.result
+            const code: RedemptionCode = json.result[0]
 
             if (code) {
               resolve(code)
