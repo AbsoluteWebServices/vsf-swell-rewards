@@ -54,7 +54,7 @@ export default {
       })).concat(this.getCustomerRedeemedRewards.map(item => {
         const date = new Date(item.approved_at)
         return {
-          label: `${item.redemption_option.name} (${i18n.t('Purchased')} ${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()})`,
+          label: `${item.redemption_option.name} (${i18n.t('Redeemed')} ${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()})`,
           value: 'rr_' + item.id,
           reward: item,
           purchased: true
