@@ -44,14 +44,18 @@ export default {
   },
   computed: {
     ...mapState(KEY, ['redemptionOptions']),
-    ...mapGetters(KEY, ['getCustomerPoints', 'getCustomerRedeemedRewards']),
+    ...mapGetters(KEY, ['getCustomerPoints', 'getCustomerRedeemedRewards', 'getCustomerPurchases']),
+    redeemedUnusedRewards () {
+      const purchasedIds = this.getCustomerPurchases.map(item => item.point_redemption_id)
+      return this.getCustomerRedeemedRewards.filter(item => purchasedIds.indexOf(item.id) === -1)
+    },
     rewardOptions () {
       return this.redemptionOptions.map(item => ({
         label: `${item.name} (${item.cost_text})`,
         value: 'ro_' + item.id,
         reward: item,
         purchased: false
-      })).concat(this.getCustomerRedeemedRewards.map(item => {
+      })).concat(this.redeemedUnusedRewards.map(item => {
         const date = new Date(item.approved_at)
         return {
           label: `${item.redemption_option.name} (${i18n.t('Redeemed')} ${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()})`,
@@ -96,7 +100,7 @@ export default {
 
       const reward = selectedReward.reward
       if (selectedReward.purchased && this.$store.dispatch(KEY + '/setActiveRedemption', reward)) {
-        this.$emit('reward-purchased', reward.redemption_option.reward_text)
+        this.$emit('reward-purchased', reward.reward_text)
         return
       }
 

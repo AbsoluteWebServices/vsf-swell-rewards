@@ -56,5 +56,6 @@ export const getters: GetterTree<SwellRewardsState, RootState> = {
     }
     return 0
   },
-  getCustomerRedeemedRewards: state => state.customer && state.customer.point_redemptions ? state.customer.point_redemptions.filter(item => item.approved) : []
+  getCustomerRedeemedRewards: state => state.customer && state.customer.point_redemptions ? state.customer.point_redemptions.filter(item => item.approved) : [],
+  getCustomerPurchases: state => state.customer && state.customer.purchases ? state.customer.purchases : []
 }
