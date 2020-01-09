@@ -12,7 +12,7 @@ export const getters: GetterTree<SwellRewardsState, RootState> = {
     }
 
     let link = config.swellRewards.referralBase + state.customer.referral_code
-    
+
     switch (medium) {
       case 'facebook':
         link += '?f'

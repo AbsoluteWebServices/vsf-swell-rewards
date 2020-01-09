@@ -33,7 +33,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           'Content-Type': 'application/json'
         },
         mode: 'cors',
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           type,
           customer_email: state.customer.email,
           action_name,
@@ -41,7 +41,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           created_at,
           reward_points,
           history_title
-         })
+        })
       }).then(resp => {
         if (resp.ok) {
           resolve(resp)
@@ -67,14 +67,14 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           'Content-Type': 'application/json'
         },
         mode: 'cors',
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           id: id ? id.toString() : null,
           first_name: firstname,
           last_name: lastname,
           email,
           pos_account_id,
           tags: tags.join(',')
-         })
+        })
       }).then(resp => {
         if (resp.ok) {
           commit(types.UPDATE_CUSTOMER, {
@@ -110,7 +110,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           'Content-Type': 'application/json'
         },
         mode: 'cors',
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           customer_email: state.customer.email,
           day,
           month,
@@ -132,7 +132,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       })
     })
   },
-  getCustomers ({}, {last_seen_at = null, page = 0, per_page = 20}): Promise<Customer[]> {
+  getCustomers (context, {last_seen_at = null, page = 0, per_page = 20}): Promise<Customer[]> {
     let url = processURLAddress(config.swellRewards.endpoint) + `/customers/all?page=${page}&per_page=${per_page}${last_seen_at ? `&last_seen_at=${last_seen_at}` : ''}`
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
@@ -242,7 +242,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
     if (!state.customerId && !state.customer.email) {
       throw new Error('Email or ID is required.')
     }
-    return dispatch('getCustomerV2', { email: state.customer.email, id: state.customerId, with_referral_code, with_history})
+    return dispatch('getCustomerV2', { email: state.customer.email, id: state.customerId, with_referral_code, with_history })
   },
   sendReferralEmails ({ state }, emails): Promise<Response> {
     if (!state.customer || !state.customer.email) {
@@ -262,7 +262,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           emails,
           customer_email: state.customer.email
         })
@@ -299,7 +299,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           'Content-Type': 'application/json'
         },
         mode: 'cors',
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           customer_external_id: state.customerId,
           customer_email: state.customer ? state.customer.email : null,
           redemption_option_id: redemptionOptionId,
@@ -325,7 +325,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       })
     })
   },
-  setActiveRedemption ({ commit }, redemption: Redemption): Boolean {
+  setActiveRedemption ({ commit }, redemption: Redemption): boolean {
     if (redemption.approved) {
       commit(types.SET_ACTIVE_REDEMPTION, redemption)
       return true
@@ -370,7 +370,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       })
     })
   },
-  getRedemptionCodeData ({}, { third_party_id = null, code = null }): Promise<RedemptionCode | null> {
+  getRedemptionCodeData (context, { third_party_id = null, code = null }): Promise<RedemptionCode | null> {
     if (!third_party_id && !code) {
       throw new Error('Redemption ID or Code is required.')
     }
@@ -406,8 +406,8 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       })
     })
   },
-  checkCoupon ({ state, dispatch }, code): Promise<Boolean> {
-    return new Promise<Boolean>((resolve, reject) => {
+  checkCoupon ({ state, dispatch }, code): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
       dispatch('getRedemptionCodeData', { code }).then(codeData => {
         if (codeData) {
           if (!!state.customer && !!state.customer.email) {
@@ -473,7 +473,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
     if (!order.cart) {
       throw new Error('Order Cart is required.')
     }
-    
+
     let url = processURLAddress(config.swellRewards.endpoint) + '/orders'
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
@@ -509,7 +509,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
             type: product.type,
             vendor: ''
           }))
-         })
+        })
       }).then(resp => {
         if (resp.ok) {
           resolve(resp)
@@ -521,11 +521,11 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       })
     })
   },
-  createRefund ({}, order): Promise<Response> {
+  createRefund (context, order): Promise<Response> {
     if (!order.cart) {
       throw new Error('Order Cart is required.')
     }
-    
+
     let url = processURLAddress(config.swellRewards.endpoint) + '/refunds'
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
@@ -547,7 +547,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
             id: product.id.toString(),
             quantity: product.qty
           }))
-         })
+        })
       }).then(resp => {
         if (resp.ok) {
           resolve(resp)
@@ -591,5 +591,5 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
         reject(err)
       })
     })
-  },
+  }
 }

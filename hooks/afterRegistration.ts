@@ -1,7 +1,7 @@
 import { KEY } from '../index'
 import * as types from '../store/mutation-types'
 
-export function afterRegistration({ Vue, config, store, isServer }) {
+export function afterRegistration ({ Vue, config, store, isServer }) {
   if (!isServer && config.swellRewards) {
     Vue.prototype.$bus.$emit('swell:initialized')
 
@@ -22,16 +22,6 @@ export function afterRegistration({ Vue, config, store, isServer }) {
     Vue.prototype.$bus.$on('user-before-logout', () => {
       store.commit(KEY + '/' + types.CLEAR)
       Vue.prototype.$bus.$emit('swell:setup')
-    })
-
-    Vue.prototype.$bus.$on('order-after-placed', event => {
-
-      // let cart = rootStore.state.cart
-      // let order = {
-      //   ...event.order,
-      //   cart
-      // }
-      // store.dispatch(KEY + '/orderUpdated', order)
     })
   }
 }

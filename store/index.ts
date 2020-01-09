@@ -6,11 +6,10 @@ import { actions } from './actions'
 import { state } from './state'
 import SwellRewardsState from '../types/SwellRewardsState'
 
-
 export const module: Module<SwellRewardsState, RootState> = {
-    namespaced: true,
-    mutations,
-    actions,
-    getters,
-    state
+  namespaced: true,
+  mutations,
+  actions,
+  getters,
+  state
 }

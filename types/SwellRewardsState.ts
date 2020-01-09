@@ -5,10 +5,10 @@ import VipTier from './VipTier'
 import Campaign from './Campaign'
 
 export default interface SwellRewardsState {
-  customerId: string
-  customer: Customer
-  redemptionOptions: RedemptionOption[]
-  activeRedemption?: Redemption
-  campaigns: Campaign[]
+  customerId: string,
+  customer: Customer,
+  redemptionOptions: RedemptionOption[],
+  activeRedemption?: Redemption,
+  campaigns: Campaign[],
   vipTiers: VipTier[]
 }
