@@ -169,7 +169,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       throw new Error('Email or ID is required.')
     }
 
-    let url = processURLAddress(config.swellRewards.endpoint) + `/customers?${id ? `customer_id=${id}` + (email ? '&' : '') : ''}${email ? `customer_email=${email}` : ''}${with_referral_code ? '&with_referral_code=true' : ''}${with_history ? '&with_history=true' : ''}`
+    let url = processURLAddress(config.swellRewards.endpoint) + `/customers?${id ? `customer_id=${id}` + (email ? '&' : '') : ''}${email ? `customer_email=${encodeURIComponent(email)}` : ''}${with_referral_code ? '&with_referral_code=true' : ''}${with_history ? '&with_history=true' : ''}`
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
@@ -206,7 +206,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       throw new Error('Email is required.')
     }
 
-    let url = processURLAddress(config.swellRewards.endpoint) + `/customer_details?customer_email=${email}`
+    let url = processURLAddress(config.swellRewards.endpoint) + `/customer_details?customer_email=${encodeURIComponent(email)}`
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
@@ -375,7 +375,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       throw new Error('Redemption ID or Code is required.')
     }
 
-    let url = processURLAddress(config.swellRewards.endpoint) + `/redemption_codes?${third_party_id ? `third_party_id=${third_party_id}` + (code ? '&' : '') : ''}${code ? `code=${code}` : ''}`
+    let url = processURLAddress(config.swellRewards.endpoint) + `/redemption_codes?${third_party_id ? `third_party_id=${third_party_id}` + (code ? '&' : '') : ''}${code ? `code=${encodeURIComponent(code)}` : ''}`
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
     }
@@ -431,7 +431,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       if (!state.customerId && (!state.customer || !state.customer.email)) {
         throw new Error('Identified customer required to get his current status and eligibility on each of the campaigns.')
       }
-      url = `?with_status=true&customer_id=${state.customerId}&customer_email=${state.customer ? state.customer.email : ''}`
+      url = `?with_status=true&customer_id=${state.customerId}&customer_email=${state.customer ? encodeURIComponent(state.customer.email) : ''}`
     }
 
     if (config.storeViews.multistore) {
