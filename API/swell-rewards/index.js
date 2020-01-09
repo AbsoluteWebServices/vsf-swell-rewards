@@ -54,8 +54,6 @@ module.exports = ({ config, db }) => {
       return
     }
 
-    console.log(data)
-
     let request = require('request')
     request({
       url: config.extensions.swellRewards.apiUrl.v1 + '/referral_email_shares',
@@ -67,7 +65,6 @@ module.exports = ({ config, db }) => {
         merchant_id: config.extensions.swellRewards.merchantId
       }
     }, (error, response, body) => {
-      console.log(error)
       if (error) {
         apiStatus(res, error, 500)
       } else {
@@ -290,8 +287,6 @@ module.exports = ({ config, db }) => {
       json: true,
       body: data
     }, (error, response, body) => {
-      console.log(body.status)
-      console.log(response.statusCode)
       if (error) {
         apiStatus(res, error, 500)
       } else {
