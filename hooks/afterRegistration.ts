@@ -20,7 +20,7 @@ export function afterRegistration ({ Vue, config, store, isServer }) {
       try {
         await store.dispatch(KEY + '/getCustomerV2', { id: receivedData.id, email: receivedData.email, with_referral_code: true, with_history: true })
       } catch (resp) {
-        if (resp.status === 404) {
+        if (resp.code === 404) {
           await store.dispatch(KEY + '/updateCustomer', receivedData)
           await store.dispatch(KEY + '/getCustomerV2', { id: receivedData.id, email: receivedData.email, with_referral_code: true, with_history: true })
         }
