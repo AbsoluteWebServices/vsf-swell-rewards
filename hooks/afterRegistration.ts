@@ -39,5 +39,9 @@ export function afterRegistration ({ Vue, config, store, isServer }) {
 
       Vue.prototype.$bus.$emit('swell:setup')
     })
+
+    Vue.prototype.$bus.$on('myAccount-before-updateUser', async receivedData => {
+      await store.dispatch(KEY + '/updateCustomer', receivedData)
+    })
   }
 }
