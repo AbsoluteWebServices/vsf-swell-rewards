@@ -1,6 +1,22 @@
 import { KEY } from '../index'
 import * as types from '../store/mutation-types'
-import { setInterval, clearInterval } from 'timers'
+import { setTimeout, setInterval, clearInterval } from 'timers'
+
+const sleep = (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+const parseDoB = dob => {
+  const pieces = dob.split('-')
+  if (pieces.length === 3) {
+    return {
+      day: pieces[2],
+      month: pieces[1],
+      year: pieces[0]
+    }
+  }
+  return null
+}
 
 export function afterRegistration ({ Vue, config, store, isServer }) {
   if (!isServer && config.swellRewards) {
@@ -22,6 +38,16 @@ export function afterRegistration ({ Vue, config, store, isServer }) {
       } catch (resp) {
         if (resp.code === 404) {
           await store.dispatch(KEY + '/updateCustomer', receivedData)
+          await sleep(100)
+
+          if (receivedData.dob) {
+            const bDate = parseDoB(receivedData.dob)
+
+            if (bDate) {
+              await store.dispatch('swell-rewards/setCustomerBirthday', bDate)
+            }
+          }
+
           await store.dispatch(KEY + '/getCustomerV2', { id: receivedData.id, email: receivedData.email, with_referral_code: true, with_history: true })
         }
       }
@@ -42,6 +68,14 @@ export function afterRegistration ({ Vue, config, store, isServer }) {
 
     Vue.prototype.$bus.$on('myAccount-before-updateUser', async receivedData => {
       await store.dispatch(KEY + '/updateCustomer', receivedData)
+
+      if (receivedData.dob) {
+        const bDate = parseDoB(receivedData.dob)
+
+        if (bDate) {
+          await store.dispatch('swell-rewards/setCustomerBirthday', bDate)
+        }
+      }
     })
   }
 }
