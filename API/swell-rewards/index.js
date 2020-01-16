@@ -1,8 +1,27 @@
 import { apiStatus } from '../../../lib/util'
 import { Router } from 'express'
+import PlatformFactory from '../../../platform/factory'
 
 module.exports = ({ config, db }) => {
   let swellApi = Router()
+
+  const _getUserProxy = (req) => {
+    const platform = config.platform
+    const factory = new PlatformFactory(config, req)
+    return factory.getAdapter(platform, 'user')
+  }
+
+  const getUser = (req, res) => {
+    const userProxy = _getUserProxy(req)
+    return new Promise((resolve, reject) => {
+      userProxy.me(req.query.token).then(user => {
+        resolve(user)
+      }).catch(err => {
+        apiStatus(res, err, 500)
+        reject(err)
+      })
+    })
+  }
 
   /**
    * V1
@@ -32,6 +51,7 @@ module.exports = ({ config, db }) => {
         apiStatus(res, error, 500)
       } else {
         let json = body
+
         if (typeof json === 'string') {
           json = JSON.parse(json)
         }
@@ -55,6 +75,7 @@ module.exports = ({ config, db }) => {
     }
 
     let request = require('request')
+
     request({
       url: config.extensions.swellRewards.apiUrl.v1 + '/referral_email_shares',
       method: 'POST',
@@ -83,33 +104,35 @@ module.exports = ({ config, db }) => {
    * It will apply the action to all matching active campaigns and award the necessary points and/or discounts.
    */
   swellApi.post('/actions', (req, res) => {
-    let data = req.body
+    getUser(req, res).then(user => {
+      let data = req.body
 
-    if (!data.customer_email) {
-      apiStatus(res, 'Customer Email is required.', 400)
-      return
-    }
+      data.customer_email = user.email
+      data.customer_id = user.id
 
-    let request = require('request')
-    request({
-      url: config.extensions.swellRewards.apiUrl.v2 + '/actions',
-      method: 'POST',
-      headers: {
-        'x-guid': config.extensions.swellRewards.guid,
-        'x-api-key': config.extensions.swellRewards.apiKey
-      },
-      json: true,
-      body: Object.assign({}, data, {ip_address: req.ip})
-    }, (error, response, body) => {
-      if (error) {
-        apiStatus(res, error, 500)
-      } else {
-        let json = body
-        if (typeof json === 'string') {
-          json = JSON.parse(json)
+      let request = require('request')
+
+      request({
+        url: config.extensions.swellRewards.apiUrl.v2 + '/actions',
+        method: 'POST',
+        headers: {
+          'x-guid': config.extensions.swellRewards.guid,
+          'x-api-key': config.extensions.swellRewards.apiKey
+        },
+        json: true,
+        body: Object.assign({}, data, {ip_address: req.ip})
+      }, (error, response, body) => {
+        if (error) {
+          apiStatus(res, error, 500)
+        } else {
+          let json = body
+
+          if (typeof json === 'string') {
+            json = JSON.parse(json)
+          }
+          apiStatus(res, json, response.statusCode)
         }
-        apiStatus(res, json, response.statusCode)
-      }
+      })
     })
   })
 
@@ -121,39 +144,40 @@ module.exports = ({ config, db }) => {
    * or a customer changes their email address.
    */
   swellApi.post('/customers', (req, res) => {
-    let data = req.body
+    getUser(req, res).then(user => {
+      let data = req.body
 
-    if (!data.id && !data.email) {
-      apiStatus(res, 'Customer Id or Email required.', 400)
-      return
-    }
-
-    if (!data.first_name) {
-      apiStatus(res, 'First name is required.', 400)
-      return
-    }
-
-    if (!data.last_name) {
-      apiStatus(res, 'Last name is required.', 400)
-      return
-    }
-
-    let request = require('request')
-    request({
-      url: config.extensions.swellRewards.apiUrl.v2 + '/customers',
-      method: 'POST',
-      headers: {
-        'x-guid': config.extensions.swellRewards.guid,
-        'x-api-key': config.extensions.swellRewards.apiKey
-      },
-      json: true,
-      body: data
-    }, (error, response, body) => {
-      if (error) {
-        apiStatus(res, error, 500)
-      } else {
-        apiStatus(res, body, response.statusCode)
+      if (!data.first_name) {
+        apiStatus(res, 'First name is required.', 400)
+        return
       }
+
+      if (!data.last_name) {
+        apiStatus(res, 'Last name is required.', 400)
+        return
+      }
+
+      data.id = user.id
+      data.email = user.email
+
+      let request = require('request')
+
+      request({
+        url: config.extensions.swellRewards.apiUrl.v2 + '/customers',
+        method: 'POST',
+        headers: {
+          'x-guid': config.extensions.swellRewards.guid,
+          'x-api-key': config.extensions.swellRewards.apiKey
+        },
+        json: true,
+        body: data
+      }, (error, response, body) => {
+        if (error) {
+          apiStatus(res, error, 500)
+        } else {
+          apiStatus(res, body, response.statusCode)
+        }
+      })
     })
   })
 
@@ -161,34 +185,34 @@ module.exports = ({ config, db }) => {
    * Set Customer Birthday
    */
   swellApi.post('/customer_birthdays', (req, res) => {
-    let data = req.body
+    getUser(req, res).then(user => {
+      let data = req.body
 
-    if (!data.customer_email) {
-      apiStatus(res, 'Customer Email is required.', 400)
-      return
-    }
-
-    if (!data.day || !data.month || !data.year) {
-      apiStatus(res, 'Date is required.', 400)
-      return
-    }
-
-    let request = require('request')
-    request({
-      url: config.extensions.swellRewards.apiUrl.v2 + '/customer_birthdays',
-      method: 'POST',
-      headers: {
-        'x-guid': config.extensions.swellRewards.guid,
-        'x-api-key': config.extensions.swellRewards.apiKey
-      },
-      json: true,
-      body: data
-    }, (error, response, body) => {
-      if (error) {
-        apiStatus(res, error, 500)
-      } else {
-        apiStatus(res, body, response.statusCode)
+      if (!data.day || !data.month || !data.year) {
+        apiStatus(res, 'Date is required.', 400)
+        return
       }
+
+      data.customer_email = user.email
+
+      let request = require('request')
+
+      request({
+        url: config.extensions.swellRewards.apiUrl.v2 + '/customer_birthdays',
+        method: 'POST',
+        headers: {
+          'x-guid': config.extensions.swellRewards.guid,
+          'x-api-key': config.extensions.swellRewards.apiKey
+        },
+        json: true,
+        body: data
+      }, (error, response, body) => {
+        if (error) {
+          apiStatus(res, error, 500)
+        } else {
+          apiStatus(res, body, response.statusCode)
+        }
+      })
     })
   })
 
@@ -200,6 +224,7 @@ module.exports = ({ config, db }) => {
    */
   swellApi.get('/customers/all', (req, res) => {
     let request = require('request')
+
     request({
       url: config.extensions.swellRewards.apiUrl.v2 + '/customers/all',
       method: 'GET',
@@ -213,6 +238,7 @@ module.exports = ({ config, db }) => {
         apiStatus(res, error, 500)
       } else {
         let json = body
+
         if (typeof json === 'string') {
           json = JSON.parse(json)
         }
@@ -228,30 +254,32 @@ module.exports = ({ config, db }) => {
    * Most commonly used to fetch a customer’s point balance and unique referral link.
    */
   swellApi.get('/customers', (req, res) => {
-    if (!req.query.customer_id && !req.query.customer_email) {
-      apiStatus(res, 'Customer Id or Email required.', 400)
-      return
-    }
+    getUser(req, res).then(user => {
+      let request = require('request')
 
-    let request = require('request')
-    request({
-      url: config.extensions.swellRewards.apiUrl.v2 + '/customers',
-      method: 'GET',
-      headers: {
-        'x-guid': config.extensions.swellRewards.guid,
-        'x-api-key': config.extensions.swellRewards.apiKey
-      },
-      qs: req.query
-    }, (error, response, body) => {
-      if (error) {
-        apiStatus(res, error, 500)
-      } else {
-        let json = body
-        if (typeof json === 'string') {
-          json = JSON.parse(json)
+      request({
+        url: config.extensions.swellRewards.apiUrl.v2 + '/customers',
+        method: 'GET',
+        headers: {
+          'x-guid': config.extensions.swellRewards.guid,
+          'x-api-key': config.extensions.swellRewards.apiKey
+        },
+        qs: Object.assign({}, req.query, {
+          customer_id: user.id,
+          customer_email: user.email
+        })
+      }, (error, response, body) => {
+        if (error) {
+          apiStatus(res, error, 500)
+        } else {
+          let json = body
+
+          if (typeof json === 'string') {
+            json = JSON.parse(json)
+          }
+          apiStatus(res, json, response.statusCode)
         }
-        apiStatus(res, json, response.statusCode)
-      }
+      })
     })
   })
 
@@ -264,38 +292,40 @@ module.exports = ({ config, db }) => {
    * generate the coupon code, and return it in the response.
    */
   swellApi.post('/redemptions', (req, res) => {
-    let data = req.body
+    getUser(req, res).then(user => {
+      let data = req.body
 
-    if (!data.customer_external_id && !data.customer_email) {
-      apiStatus(res, 'Customer Id or Email required.', 400)
-      return
-    }
-
-    if (!data.redemption_option_id) {
-      apiStatus(res, 'Redemption option ID is required.', 400)
-      return
-    }
-
-    let request = require('request')
-    request({
-      url: config.extensions.swellRewards.apiUrl.v2 + '/redemptions',
-      method: 'POST',
-      headers: {
-        'x-guid': config.extensions.swellRewards.guid,
-        'x-api-key': config.extensions.swellRewards.apiKey
-      },
-      json: true,
-      body: data
-    }, (error, response, body) => {
-      if (error) {
-        apiStatus(res, error, 500)
-      } else {
-        let json = body
-        if (typeof json === 'string') {
-          json = JSON.parse(json)
-        }
-        apiStatus(res, json, response.statusCode)
+      if (!data.redemption_option_id) {
+        apiStatus(res, 'Redemption option ID is required.', 400)
+        return
       }
+
+      data.customer_external_id = user.id
+      data.customer_email = user.email
+
+      let request = require('request')
+
+      request({
+        url: config.extensions.swellRewards.apiUrl.v2 + '/redemptions',
+        method: 'POST',
+        headers: {
+          'x-guid': config.extensions.swellRewards.guid,
+          'x-api-key': config.extensions.swellRewards.apiKey
+        },
+        json: true,
+        body: data
+      }, (error, response, body) => {
+        if (error) {
+          apiStatus(res, error, 500)
+        } else {
+          let json = body
+
+          if (typeof json === 'string') {
+            json = JSON.parse(json)
+          }
+          apiStatus(res, json, response.statusCode)
+        }
+      })
     })
   })
 
@@ -306,6 +336,7 @@ module.exports = ({ config, db }) => {
    */
   swellApi.get('/redemption_options', (req, res) => {
     let request = require('request')
+
     request({
       url: config.extensions.swellRewards.apiUrl.v2 + '/redemption_options',
       method: 'GET',
@@ -318,6 +349,7 @@ module.exports = ({ config, db }) => {
         apiStatus(res, error, 500)
       } else {
         let json = body
+
         if (typeof json === 'string') {
           json = JSON.parse(json)
         }
@@ -341,6 +373,7 @@ module.exports = ({ config, db }) => {
     }
 
     let request = require('request')
+
     request({
       url: config.extensions.swellRewards.apiUrl.v2 + '/redemption_codes',
       method: 'GET',
@@ -354,6 +387,7 @@ module.exports = ({ config, db }) => {
         apiStatus(res, error, 500)
       } else {
         let json = body
+
         if (typeof json === 'string') {
           json = JSON.parse(json)
         }
@@ -368,15 +402,18 @@ module.exports = ({ config, db }) => {
    * This endpoint returns a list of campaigns available for customers to participate in.
    * If you provide a particular customer we can return their current status and eligibility on each of the campaigns.
    */
-  swellApi.get('/campaigns', (req, res) => {
-    if (req.query.with_status) {
-      if (!req.query.customer_id && !req.query.customer_email) {
-        apiStatus(res, 'Customer Id or Email required.', 400)
-        return
-      }
+  swellApi.get('/campaigns', async (req, res) => {
+    let qs = req.query
+
+    if (qs.with_status) {
+      const user = await getUser(req, res)
+
+      qs.customer_id = user.id
+      qs.customer_email = user.email
     }
 
     let request = require('request')
+
     request({
       url: config.extensions.swellRewards.apiUrl.v2 + '/campaigns',
       method: 'GET',
@@ -384,82 +421,17 @@ module.exports = ({ config, db }) => {
         'x-guid': config.extensions.swellRewards.guid,
         'x-api-key': config.extensions.swellRewards.apiKey
       },
-      qs: req.query
+      qs
     }, (error, response, body) => {
       if (error) {
         apiStatus(res, error, 500)
       } else {
         let json = body
+
         if (typeof json === 'string') {
           json = JSON.parse(json)
         }
         apiStatus(res, json, response.statusCode)
-      }
-    })
-  })
-
-  /**
-   * Create Order
-   *
-   * This endpoint records an order made by a customer.
-   * It will apply the order to all matching active campaigns and award the necessary points and/or discounts.
-   */
-  swellApi.post('/orders', (req, res) => {
-    let data = req.body
-
-    if (!data.customer_email) {
-      apiStatus(res, 'Customer Email is required.', 400)
-      return
-    }
-
-    let request = require('request')
-    request({
-      url: config.extensions.swellRewards.apiUrl.v2 + '/orders',
-      method: 'POST',
-      headers: {
-        'x-guid': config.extensions.swellRewards.guid,
-        'x-api-key': config.extensions.swellRewards.apiKey
-      },
-      json: true,
-      body: Object.assign({}, data, {ip_address: req.ip})
-    }, (error, response, body) => {
-      if (error) {
-        apiStatus(res, error, 500)
-      } else {
-        apiStatus(res, body, response.statusCode)
-      }
-    })
-  })
-
-  /**
-   * Create Refund
-   *
-   * Send a new refund to the Swell API to adjust previously processed order.
-   * Requests are processed asynchronously.
-   */
-  swellApi.post('/refunds', (req, res) => {
-    let data = req.body
-
-    if (!data.order_id) {
-      apiStatus(res, 'Order ID is required.', 400)
-      return
-    }
-
-    let request = require('request')
-    request({
-      url: config.extensions.swellRewards.apiUrl.v2 + '/refunds',
-      method: 'POST',
-      headers: {
-        'x-guid': config.extensions.swellRewards.guid,
-        'x-api-key': config.extensions.swellRewards.apiKey
-      },
-      json: true,
-      body: data
-    }, (error, response, body) => {
-      if (error) {
-        apiStatus(res, error, 500)
-      } else {
-        apiStatus(res, body, response.statusCode)
       }
     })
   })
