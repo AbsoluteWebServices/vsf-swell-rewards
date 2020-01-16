@@ -5,13 +5,13 @@ import SwellRewardsState from '../types/SwellRewardsState'
 
 export const getters: GetterTree<SwellRewardsState, RootState> = {
   getCustomerPoints: state => state.customer ? state.customer.points_balance : 0,
-  getCustomerReferral: state => state.customer && state.customer.referral_code ? state.customer.referral_code : null,
-  getCustomerReferralLink: state => medium => {
-    if (!state.customer || !state.customer.referral_code || !config.swellRewards.referralBase) {
+  getCustomerReferral: state => state.customer && state.customer.referrer ? state.customer.referrer.code : null,
+  getCustomerReferralLink: (state, getters) => medium => {
+    if (!getters.getCustomerReferral || !config.swellRewards.referralBase) {
       return null
     }
 
-    let link = config.swellRewards.referralBase + state.customer.referral_code
+    let link = config.swellRewards.referralBase + getters.getCustomerReferral
 
     switch (medium) {
       case 'facebook':
