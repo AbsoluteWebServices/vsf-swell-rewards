@@ -80,6 +80,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
           commit(types.UPDATE_CUSTOMER, {
             first_name: firstname,
             last_name: lastname,
+            email,
             pos_account_id,
             tags: tags.join(',')
           })
