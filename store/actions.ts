@@ -25,12 +25,9 @@ const getUserToken = () => {
 }
 
 export const actions: ActionTree<SwellRewardsState, RootState> = {
-  recordAction ({ state }, { action_name, type = 'CustomAction', created_at = (new Date()).toISOString(), reward_points = undefined, history_title = undefined }): Promise<Response> {
-    if (!state.customer || !state.customer.email) {
-      throw new Error('Identified customer required.')
-    }
-
-    let url = processURLAddress(config.swellRewards.endpoint) + '/actions'
+  recordAction (context, { action_name, type = 'CustomAction', created_at = (new Date()).toISOString(), reward_points = undefined, history_title = undefined }): Promise<Response> {
+    const token = getUserToken()
+    let url = processURLAddress(config.swellRewards.endpoint) + `/actions?token=${token}`
 
     if (config.storeViews.multistore) {
       url = adjustMultistoreApiUrl(url)
@@ -46,7 +43,6 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
         mode: 'cors',
         body: JSON.stringify({
           type,
-          customer_email: state.customer.email,
           action_name,
           user_agent: navigator.userAgent,
           created_at,
