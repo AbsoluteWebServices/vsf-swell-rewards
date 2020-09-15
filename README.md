@@ -22,40 +22,9 @@ export const registerModules: VueStorefrontModule[] = [
 ]
 ```
 
-Add following settings to your config file.
-
-```json
-  "swellRewards": {
-    "referralBase": "http://rwrd.io/",
-    "endpoint": "http://localhost:8080/api/ext/swell-rewards"
-  },
-```
+Add settings from `local.json` to your config file.
 
 ## Swell Rewards API extension
 
-Install additional extension for `vue-storefront-api`:
+Install additional extension for `vue-storefront-api`: [vsf-api-swell-rewards](https://github.com/AbsoluteWebServices/vsf-api-swell-rewards).
 
-```shell
-cp -f ./vue-storefront/src/modules/vsf-swell-rewards/API/swell-rewards ./vue-storefront-api/src/api/extensions/
-```
-
-Add the config to your api config.
-
-```json
-  "extensions":{
-    "swellRewards": {
-      "merchantId": "__YOUR_MERCHANT_ID__",
-      "guid": "__YOUR_GUID__",
-      "apiKey": "__YOUR_API_KEY__",
-      "apiUrl": {
-        "v1": "https://app.swellrewards.com/api/v1",
-        "v2": "https://app.swellrewards.com/api/v2"
-      }
-    },
-    ...
-  },
-  "registeredExtensions": [
-    "swell-rewards",
-    ...
-  ],
-```

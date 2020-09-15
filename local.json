@@ -1,0 +1,6 @@
+{
+  "swellRewards": {
+    "referralBase": "http://rwrd.io/",
+    "endpoint": "http://localhost:8080/api/ext/swell-rewards"
+  }
+}
