@@ -6,5 +6,6 @@ export const state: SwellRewardsState = {
   redemptionOptions: [],
   activeRedemption: null,
   campaigns: [],
-  vipTiers: []
+  vipTiers: [],
+  referralLink: ''
 }

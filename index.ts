@@ -1,13 +1,9 @@
-import { VueStorefrontModule, VueStorefrontModuleConfig } from '@vue-storefront/core/lib/module'
+import { StorefrontModule } from '@vue-storefront/core/lib/modules'
 import { afterRegistration } from './hooks/afterRegistration'
 import { module } from './store'
 
 export const KEY = 'swell-rewards'
 
-const moduleConfig: VueStorefrontModuleConfig = {
-  key: KEY,
-  store: { modules: [{ key: KEY, module }] },
-  afterRegistration
+export const SwellRewards: StorefrontModule = function ({ store, appConfig }) {
+  store.registerModule(KEY, module)
 }
-
-export const SwellRewards = new VueStorefrontModule(moduleConfig)

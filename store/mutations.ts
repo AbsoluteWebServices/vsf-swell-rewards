@@ -29,6 +29,9 @@ export const mutations: MutationTree<SwellRewardsState> = {
   [types.SET_VIP_TIERS] (state, vipTiers: VipTier[]) {
     state.vipTiers = vipTiers
   },
+  [types.SET_REFERRAL_LINK] (state, referralLink: string) {
+    state.referralLink = referralLink
+  },
   [types.CLEAR] (state) {
     state.customerId = null
     state.customer = null

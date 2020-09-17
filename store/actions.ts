@@ -525,5 +525,47 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
         reject(err)
       })
     })
+  },
+  createReferralLink ({ commit }, email): Promise<Redemption> {
+    if (!email) {
+      throw new Error('Email address is required.')
+    }
+
+    let url = processURLAddress(config.swellRewards.endpoint) + '/referral-link'
+
+    if (config.storeViews.multistore) {
+      url = adjustMultistoreApiUrl(url)
+    }
+
+    return new Promise<Redemption>((resolve, reject) => {
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        mode: 'cors',
+        body: JSON.stringify({
+          email: email
+        })
+      }).then(resp => {
+        resp.json().then(json => {
+          if (resp.ok) {
+            const referralLink = json.result.referral_link
+
+            if (referralLink) {
+              commit(types.SET_REFERRAL_LINK, referralLink)
+              resolve(referralLink)
+            } else {
+              reject(json)
+            }
+          } else {
+            reject(json)
+          }
+        })
+      }).catch(err => {
+        reject(err)
+      })
+    })
   }
 }

@@ -10,5 +10,6 @@ export default interface SwellRewardsState {
   redemptionOptions: RedemptionOption[],
   activeRedemption?: Redemption,
   campaigns: Campaign[],
-  vipTiers: VipTier[]
+  vipTiers: VipTier[],
+  referralLink: string
 }
