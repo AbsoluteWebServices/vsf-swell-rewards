@@ -567,5 +567,38 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
         reject(err)
       })
     })
+  },
+  shareReferralViaEmail ({ commit }, data): Promise<Redemption> {
+    if (!data.email && !data.emails) {
+      throw new Error('Email address and emails list is required.')
+    }
+
+    let url = processURLAddress(config.swellRewards.endpoint) + '/referral-share'
+
+    if (config.storeViews.multistore) {
+      url = adjustMultistoreApiUrl(url)
+    }
+
+    return new Promise<Redemption>((resolve, reject) => {
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        mode: 'cors',
+        body: JSON.stringify(data)
+      }).then(resp => {
+        resp.json().then(json => {
+          if (resp.ok) {
+            resolve(json)
+          } else {
+            reject(json)
+          }
+        })
+      }).catch(err => {
+        reject(err)
+      })
+    })
   }
 }
