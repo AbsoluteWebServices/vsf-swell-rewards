@@ -552,9 +552,11 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
         resp.json().then(json => {
           if (resp.ok) {
             const referralLink = json.result.referral_link
+            const referralsHistory = json.result.referral_receipts
 
             if (referralLink) {
               commit(types.SET_REFERRAL_LINK, referralLink)
+              if (referralsHistory) commit(types.SET_REFERRALS_HISTORY, referralsHistory)
               resolve(referralLink)
             } else {
               reject(json)

@@ -3,6 +3,7 @@ import RedemptionOption from './RedemptionOption'
 import Redemption from './Redemption'
 import VipTier from './VipTier'
 import Campaign from './Campaign'
+import ReferralsHistory from './ReferralsHistory'
 
 export default interface SwellRewardsState {
   customerId: string,
@@ -11,5 +12,6 @@ export default interface SwellRewardsState {
   activeRedemption?: Redemption,
   campaigns: Campaign[],
   vipTiers: VipTier[],
-  referralLink: string
+  referralLink: string,
+  referralsHistory: ReferralsHistory[]
 }

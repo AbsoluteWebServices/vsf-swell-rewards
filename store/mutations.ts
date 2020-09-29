@@ -6,6 +6,7 @@ import RedemptionOption from '../types/RedemptionOption'
 import Redemption from '../types/Redemption'
 import Campaign from '../types/Campaign'
 import VipTier from '../types/VipTier'
+import ReferralsHistory from '../types/ReferralsHistory'
 
 export const mutations: MutationTree<SwellRewardsState> = {
   [types.SET_CUSTOMER_ID] (state, customerId: string | number) {
@@ -31,6 +32,9 @@ export const mutations: MutationTree<SwellRewardsState> = {
   },
   [types.SET_REFERRAL_LINK] (state, referralLink: string) {
     state.referralLink = referralLink
+  },
+  [types.SET_REFERRALS_HISTORY] (state, referralsHistory: ReferralsHistory[]) {
+    state.referralsHistory = referralsHistory
   },
   [types.CLEAR] (state) {
     state.customerId = null
