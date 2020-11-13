@@ -187,7 +187,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       }).then(resp => {
         resp.json().then(json => {
           if (resp.ok) {
-            const customers: Customer[] = json.result
+            const customers: Customer[] = json.result.customers
 
             if (customers && customers.length) {
               resolve(customers)
