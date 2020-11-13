@@ -27,27 +27,27 @@ const getUserToken = () => {
 export const actions: ActionTree<SwellRewardsState, RootState> = {
   // V1 action
   recordUserAction (context, { type = 'CustomAction' }): Promise<Response> {
-    let url = processURLAddress(config.swellRewards.endpoint) + `/user_actions`
+    if (!config.swellRewards.apiUrl || !config.swellRewards.apiUrl.v1 || !config.swellRewards.merchantId) return
 
-    if (config.storeViews.multistore) {
-      url = adjustMultistoreApiUrl(url)
-    }
+    let url = config.swellRewards.apiUrl.v1 + `/user_actions`
 
     return new Promise<Response>((resolve, reject) => {
       fetch(url, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-merchant-id': config.swellRewards.merchantId
         },
         mode: 'cors',
         body: JSON.stringify({
-          type
+          type,
+          merchant_id: config.swellRewards.merchantId
         })
       }).then(resp => {
         resp.json().then(json => {
           if (resp.ok) {
-            resolve(json.result)
+            resolve(json)
           } else {
             reject(json)
           }
