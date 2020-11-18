@@ -1,6 +1,8 @@
+import { setTimeout, setInterval, clearInterval } from 'timers'
+import { isServer } from '@vue-storefront/core/helpers'
+import EventBus from '@vue-storefront/core/compatibility/plugins/event-bus'
 import { KEY } from '../index'
 import * as types from '../store/mutation-types'
-import { setTimeout, setInterval, clearInterval } from 'timers'
 
 const sleep = (ms) => {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -18,9 +20,9 @@ const parseDoB = dob => {
   return null
 }
 
-export function afterRegistration ({ Vue, config, store, isServer }) {
+export function afterRegistration (config, store) {
   if (!isServer && config.swellRewards) {
-    Vue.prototype.$bus.$emit('swell:initialized')
+    EventBus.$emit('swell:initialized')
 
     let refreshInterval: NodeJS.Timeout
     const refresh = () => {
@@ -31,7 +33,7 @@ export function afterRegistration ({ Vue, config, store, isServer }) {
       }
     }
 
-    Vue.prototype.$bus.$on('user-after-loggedin', async receivedData => {
+    EventBus.$on('user-after-loggedin', async receivedData => {
       store.commit(KEY + '/' + types.SET_CUSTOMER_ID, receivedData.id)
       try {
         await store.dispatch(KEY + '/getCustomerV2', { id: receivedData.id, email: receivedData.email, with_referral_code: true, with_history: true })
@@ -55,18 +57,18 @@ export function afterRegistration ({ Vue, config, store, isServer }) {
 
       refreshInterval = setInterval(refresh, 60000)
 
-      Vue.prototype.$bus.$emit('swell:setup')
+      EventBus.$emit('swell:setup')
     })
 
-    Vue.prototype.$bus.$on('user-before-logout', () => {
+    EventBus.$on('user-before-logout', () => {
       store.commit(KEY + '/' + types.CLEAR)
 
       clearInterval(refreshInterval)
 
-      Vue.prototype.$bus.$emit('swell:setup')
+      EventBus.$emit('swell:setup')
     })
 
-    Vue.prototype.$bus.$on('myAccount-before-updateUser', async receivedData => {
+    EventBus.$on('myAccount-before-updateUser', async receivedData => {
       await store.dispatch(KEY + '/updateCustomer', receivedData)
 
       if (receivedData.dob) {
