@@ -25,7 +25,7 @@ const getUserToken = () => {
 }
 
 export const actions: ActionTree<SwellRewardsState, RootState> = {
-  // V1 action
+  // V1 actions
   recordUserAction (context, { type = 'CustomAction' }): Promise<Response> {
     if (!config.swellRewards.apiUrl || !config.swellRewards.apiUrl.v1 || !config.swellRewards.merchantId) return
 
@@ -59,6 +59,43 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       })
     })
   },
+  getCustomerV1 ({ commit }, email): Promise<Customer> {
+    if (!config.swellRewards.apiUrl || !config.swellRewards.apiUrl.v1 || !config.swellRewards.merchantId) return
+
+    if (!email) {
+      throw new Error('Email is required.')
+    }
+
+    let url = config.swellRewards.apiUrl.v1 + `/customer_details?merchant_id=${config.swellRewards.merchantId}&customer_email=${encodeURIComponent(email)}`
+
+    return new Promise<Customer>((resolve, reject) => {
+      fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Accept': 'application/json'
+        }
+      }).then(resp => {
+        resp.json().then(json => {
+          if (resp.ok) {
+            const customer: Customer = json.result
+
+            if (customer) {
+              commit(types.UPDATE_CUSTOMER, customer)
+              resolve(customer)
+            } else {
+              reject(json)
+            }
+          } else {
+            reject(json)
+          }
+        })
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  },
+  // V2 actions
   recordAction (context, { action_name, type = 'CustomAction', created_at = (new Date()).toISOString(), reward_points = undefined, history_title = undefined }): Promise<Response> {
     const token = getUserToken()
     let url = processURLAddress(config.swellRewards.endpoint) + `/actions?token=${token}`
@@ -225,44 +262,6 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
 
             if (customer) {
               commit(types.UPDATE_CUSTOMER, {...customer, referrer: customer.referral_code})
-              resolve(customer)
-            } else {
-              reject(json)
-            }
-          } else {
-            reject(json)
-          }
-        })
-      }).catch(err => {
-        reject(err)
-      })
-    })
-  },
-  getCustomerV1 ({ commit }, email): Promise<Customer> {
-    if (!email) {
-      throw new Error('Email is required.')
-    }
-
-    let url = processURLAddress(config.swellRewards.endpoint) + `/customer_details?customer_email=${encodeURIComponent(email)}`
-
-    if (config.storeViews.multistore) {
-      url = adjustMultistoreApiUrl(url)
-    }
-
-    return new Promise<Customer>((resolve, reject) => {
-      fetch(url, {
-        method: 'GET',
-        mode: 'cors',
-        headers: {
-          'Accept': 'application/json'
-        }
-      }).then(resp => {
-        resp.json().then(json => {
-          if (resp.ok) {
-            const customer: Customer = json.result
-
-            if (customer) {
-              commit(types.UPDATE_CUSTOMER, customer)
               resolve(customer)
             } else {
               reject(json)
