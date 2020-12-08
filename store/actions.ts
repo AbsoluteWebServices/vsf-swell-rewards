@@ -526,7 +526,7 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       })
     })
   },
-  createReferralLink ({ commit }, email): Promise<Redemption> {
+  createReferralLink ({ getters, commit }, email): Promise<string> {
     if (!email) {
       throw new Error('Email address is required.')
     }
@@ -537,7 +537,17 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       url = adjustMultistoreApiUrl(url)
     }
 
-    return new Promise<Redemption>((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
+      if (getters.getCustomerReferral) {
+        const link = getters.getCustomerReferralLink()
+
+        if (link) {
+          commit(types.SET_REFERRAL_LINK, link)
+          resolve(link)
+          return
+        }
+      }
+
       fetch(url, {
         method: 'POST',
         headers: {
@@ -551,8 +561,12 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       }).then(resp => {
         resp.json().then(json => {
           if (resp.ok) {
-            const referralLink = json.result.referral_link
+            let referralLink = json.result.referral_link
             const referralsHistory = json.result.referral_receipts
+
+            if (config.swellRewards.referralBase) {
+              referralLink = referralLink.replace('http://rwrd.io/', config.swellRewards.referralBase)
+            }
 
             if (referralLink) {
               commit(types.SET_REFERRAL_LINK, referralLink)
