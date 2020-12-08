@@ -78,14 +78,10 @@ export const actions: ActionTree<SwellRewardsState, RootState> = {
       }).then(resp => {
         resp.json().then(json => {
           if (resp.ok) {
-            const customer: Customer = json.result
+            const customer: Customer = json
 
-            if (customer) {
-              commit(types.UPDATE_CUSTOMER, customer)
-              resolve(customer)
-            } else {
-              reject(json)
-            }
+            commit(types.UPDATE_CUSTOMER, customer)
+            resolve(customer)
           } else {
             reject(json)
           }
